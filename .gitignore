@@ -36,6 +36,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local AI agent tooling (not app code)
+.agents/
+.claude/
+skills-lock.json
+
 # locally-uploaded files (dev only — production uses object storage)
 /public/uploads/*
 !/public/uploads/.gitkeep
