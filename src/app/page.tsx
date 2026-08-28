@@ -1,0 +1,147 @@
+import Image from "next/image";
+import Link from "next/link";
+import { SKILL_GROUPS } from "@/lib/validation";
+
+export default function Home() {
+  return (
+    <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-6xl flex-col gap-[1.6vh] overflow-hidden bg-gradient-to-b from-blue-50 to-gray-50 px-[max(1rem,2vw)] py-[1.6vh] sm:h-[calc(100dvh-4rem)] sm:min-h-0">
+      <section className="grid shrink-0 gap-[1.6vh] lg:grid-cols-[1.15fr_1fr] lg:gap-6">
+        <div className="flex flex-col justify-center">
+          <div className="flex items-center gap-4">
+            <Image
+              src="/asad.pic.jpg"
+              alt="Md Asad Siddiqui"
+              width={352}
+              height={352}
+              className="h-[clamp(150px,26vh,352px)] w-[clamp(150px,26vh,352px)] shrink-0 rounded-full border-4 border-white object-cover shadow-lg"
+            />
+            <div>
+              <p className="text-[clamp(1rem,2.4vh,1.5rem)] font-bold leading-tight text-gray-900">
+                Md Asad Siddiqui
+              </p>
+              <p className="text-[clamp(0.8rem,1.8vh,1.1rem)] font-medium leading-tight text-blue-600">
+                Founder &amp; CEO
+              </p>
+            </div>
+          </div>
+
+          <h1 className="mt-[1.4vh] text-[clamp(1.1rem,3.2vh,2.15rem)] font-bold leading-[1.2] tracking-tight text-gray-900">
+            Hire local skilled workers, or find work near you.
+          </h1>
+          <p className="mt-[0.3vh] text-[clamp(0.95rem,2.4vh,1.6rem)] font-bold leading-[1.2] tracking-tight text-gray-900">
+            स्थानीय कुशल वर्कर को नौकरी पर रखें, या अपने पास काम ढूंढें।
+          </p>
+
+          <form action="/search" method="get" className="mt-[1.6vh] flex max-w-md gap-2">
+            <input
+              name="q"
+              placeholder="Search a skill — e.g. Electrician  खोजें"
+              className="input text-[clamp(0.7rem,1.5vh,0.95rem)]"
+            />
+            <button
+              type="submit"
+              className="shrink-0 rounded-lg bg-gray-900 px-[clamp(0.7rem,1.8vh,1.1rem)] py-[clamp(0.4rem,1.1vh,0.65rem)] text-[clamp(0.7rem,1.5vh,0.95rem)] font-semibold text-white transition hover:bg-gray-800"
+            >
+              Search
+            </button>
+          </form>
+        </div>
+
+        <div className="grid grid-cols-1 gap-[1.2vh] sm:grid-cols-2">
+          <Link
+            href="/signup?role=WORKER"
+            className="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-[1.8vh] shadow-sm transition hover:border-blue-300 hover:shadow-md"
+          >
+            <div className="flex h-[clamp(2.2rem,5vh,3rem)] w-[clamp(2.2rem,5vh,3rem)] items-center justify-center rounded-lg bg-blue-50 text-[clamp(1.1rem,2.6vh,1.5rem)] text-blue-600">
+              🛠️
+            </div>
+            <h3 className="mt-[1vh] text-[clamp(0.95rem,2.1vh,1.25rem)] font-bold leading-tight text-gray-900">
+              Looking for work?
+            </h3>
+            <p className="text-[clamp(0.78rem,1.7vh,1rem)] font-medium leading-tight text-gray-500">
+              क्या आपको काम चाहिए?
+            </p>
+            <p className="mt-[0.8vh] text-[clamp(0.7rem,1.5vh,0.88rem)] leading-snug text-gray-500">
+              Register as a worker — nearby recruiters will find you.
+              <br />
+              वर्कर के रूप में रजिस्टर करें — रिक्रूटर आपको ढूंढ लेंगे।
+            </p>
+            <span className="mt-auto pt-[1vh] inline-flex items-center gap-1 text-[clamp(0.78rem,1.7vh,1rem)] font-bold text-blue-600">
+              Register as Worker →
+            </span>
+          </Link>
+
+          <Link
+            href="/signup?role=RECRUITER"
+            className="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-[1.8vh] shadow-sm transition hover:border-blue-300 hover:shadow-md"
+          >
+            <div className="flex h-[clamp(2.2rem,5vh,3rem)] w-[clamp(2.2rem,5vh,3rem)] items-center justify-center rounded-lg bg-blue-50 text-[clamp(1.1rem,2.6vh,1.5rem)] text-blue-600">
+              🔍
+            </div>
+            <h3 className="mt-[1vh] text-[clamp(0.95rem,2.1vh,1.25rem)] font-bold leading-tight text-gray-900">
+              Need a worker?
+            </h3>
+            <p className="text-[clamp(0.78rem,1.7vh,1rem)] font-medium leading-tight text-gray-500">
+              मुझे काम के लिए वर्कर चाहिए?
+            </p>
+            <p className="mt-[0.8vh] text-[clamp(0.7rem,1.5vh,0.88rem)] leading-snug text-gray-500">
+              Register — a skilled worker will be ready to contact.
+              <br />
+              रजिस्टर करें — कुशल वर्कर तुरंत मिलेगा।
+            </p>
+            <span className="mt-auto pt-[1vh] inline-flex items-center gap-1 text-[clamp(0.78rem,1.7vh,1rem)] font-bold text-blue-600">
+              Register as Recruiter →
+            </span>
+          </Link>
+        </div>
+      </section>
+
+      <section
+        id="skills"
+        className="flex min-h-0 flex-1 flex-col rounded-xl border border-gray-200 bg-white p-[1.6vh]"
+      >
+        <div className="flex flex-1 items-center justify-center overflow-hidden">
+          <div className="grid w-full grid-cols-2 gap-[2vh] lg:grid-cols-4">
+            {SKILL_GROUPS.map((group) => (
+              <div
+                key={group.slug}
+                className="rounded-xl border border-gray-200 bg-gray-50 p-[2.2vh]"
+              >
+                <Link
+                  href={`/skills/${group.slug}`}
+                  className="block rounded-lg transition hover:text-blue-700"
+                >
+                  <h3 className="truncate text-[clamp(1.1rem,2.9vh,1.55rem)] font-bold text-gray-900">
+                    {group.name}
+                  </h3>
+                  <p className="truncate text-[clamp(0.8rem,1.8vh,1.1rem)] text-gray-500">
+                    {group.nameHindi} · {group.skills.length} skills
+                  </p>
+                </Link>
+                <div className="mt-[1.4vh] flex flex-wrap gap-[0.9vh]">
+                  {group.skills.slice(0, 4).map((skill) => (
+                    <Link
+                      key={skill}
+                      href={`/workers/${encodeURIComponent(skill)}`}
+                      className="rounded-full border border-gray-200 bg-white px-[1.2vh] py-[0.5vh] text-[clamp(0.8rem,1.9vh,1.1rem)] font-medium text-gray-700 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700"
+                    >
+                      {skill}
+                    </Link>
+                  ))}
+                  {group.skills.length > 4 && (
+                    <Link
+                      href={`/skills/${group.slug}`}
+                      className="rounded-full border border-blue-200 bg-blue-50 px-[1.2vh] py-[0.5vh] text-[clamp(0.8rem,1.9vh,1.1rem)] font-semibold text-blue-700 transition hover:bg-blue-100"
+                    >
+                      +{group.skills.length - 4} more
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

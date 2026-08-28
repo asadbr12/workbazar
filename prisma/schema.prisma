@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  WORKER
+  RECRUITER
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  FAILED
+  EXPIRED
+}
+
+enum BookingStatus {
+  REQUESTED
+  ACCEPTED
+  DECLINED
+  EN_ROUTE
+  ARRIVED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  role      Role?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workerProfile    WorkerProfile?
+  recruiterProfile RecruiterProfile?
+  subscriptions    Subscription[]
+  otpCodes         OtpCode[]
+
+  bookingsAsRecruiter Booking[] @relation("RecruiterBookings")
+  bookingsAsWorker    Booking[] @relation("WorkerBookings")
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  @@index([phone])
+}
+
+model WorkerProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  fullName           String
+  age                Int
+  gender             String
+  address            String
+  pincode            String
+  aadharNumber       String?
+  lat                Float?
+  lng                Float?
+  photoUrl           String?
+
+  skills             String[]
+  experienceYears    Int
+  previousExperience String?
+  certificateUrl     String?
+  feePerDay          Int?
+  feePerHour         Int?
+
+  availability     String
+  preferredHours   String?
+  travelDistanceKm Int      @default(10)
+
+  upiId         String?
+  accountNumber String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RecruiterProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  fullName     String
+  companyName  String?
+  businessType String?
+  gstNumber    String?
+  photoUrl     String?
+
+  officeAddress String
+  pincode       String  @default("")
+  lat           Float?
+  lng           Float?
+  serviceAreas  String[] @default([])
+
+  workerTypesNeeded String[] @default([])
+  budgetRange       String?
+  paymentTerms      String?
+
+  upiId                  String?
+  preferredPaymentMethod String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  plan   String @default("MONTHLY_99")
+  amount Int    @default(99)
+  status SubscriptionStatus @default(PENDING)
+
+  paymentMethod   String?
+  transactionId   String?
+  razorpayOrderId String?
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+}
+
+model Booking {
+  id String @id @default(cuid())
+
+  recruiterId String
+  recruiter   User   @relation("RecruiterBookings", fields: [recruiterId], references: [id])
+  workerId    String
+  worker      User   @relation("WorkerBookings", fields: [workerId], references: [id])
+
+  skill  String
+  status BookingStatus @default(REQUESTED)
+
+  destinationLat     Float?
+  destinationLng     Float?
+  destinationAddress String?
+
+  workerLat               Float?
+  workerLng               Float?
+  workerLocationUpdatedAt DateTime?
+
+  rating        Int?
+  ratingComment String?
+  ratedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([recruiterId])
+  @@index([workerId])
+}
