@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getFirebaseAdminAuth } from "@/lib/firebase-admin";
 
 export async function POST(req: NextRequest) {
-  return NextResponse.json({ debug: "firebase-admin-imported-not-called", type: typeof getFirebaseAdminAuth });
+  try {
+    const mod = await import("firebase-admin/app");
+    return NextResponse.json({ debug: "dynamic-import-succeeded", keys: Object.keys(mod) });
+  } catch (err) {
+    return NextResponse.json(
+      {
+        debug: "dynamic-import-failed",
+        name: err instanceof Error ? err.name : typeof err,
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+      },
+      { status: 500 }
+    );
+  }
 }
