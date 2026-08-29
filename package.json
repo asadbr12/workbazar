@@ -40,6 +40,9 @@
     "typescript": "^5"
   },
   "overrides": {
-    "deepmerge-ts": "8.0.2"
+    "deepmerge-ts": "8.0.2",
+    "jwks-rsa": {
+      "jose": "4.15.9"
+    }
   }
 }
