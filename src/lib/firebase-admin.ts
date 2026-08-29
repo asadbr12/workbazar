@@ -1,9 +1,10 @@
-import { initializeApp, getApps, cert, type App } from "firebase-admin/app";
-import { getAuth, type Auth } from "firebase-admin/auth";
+import type { App } from "firebase-admin/app";
+import type { Auth } from "firebase-admin/auth";
 
 let cachedAuth: Auth | null = null;
 
-function getAdminApp(): App {
+async function getAdminApp(): Promise<App> {
+  const { initializeApp, getApps, cert } = await import("firebase-admin/app");
   if (getApps().length) return getApps()[0];
 
   return initializeApp({
@@ -15,9 +16,10 @@ function getAdminApp(): App {
   });
 }
 
-export function getFirebaseAdminAuth(): Auth {
+export async function getFirebaseAdminAuth(): Promise<Auth> {
   if (!cachedAuth) {
-    cachedAuth = getAuth(getAdminApp());
+    const { getAuth } = await import("firebase-admin/auth");
+    cachedAuth = getAuth(await getAdminApp());
   }
   return cachedAuth;
 }
