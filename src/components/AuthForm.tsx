@@ -84,8 +84,7 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
       setStep("otp");
     } catch (err) {
       const code = (err as { code?: string })?.code;
-      console.error("[send-otp-debug]", err);
-      setError(code ? `${friendlyFirebaseError(code)} [DEBUG:${code}]` : "Failed to send OTP");
+      setError(code ? friendlyFirebaseError(code) : "Failed to send OTP");
       recaptchaVerifierRef.current?.clear();
       recaptchaVerifierRef.current = null;
     } finally {
@@ -113,14 +112,7 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
       router.refresh();
     } catch (err) {
       const code = (err as { code?: string })?.code;
-      console.error("[verify-otp-debug]", err);
-      setError(
-        code
-          ? `${friendlyFirebaseError(code)} [DEBUG:${code}]`
-          : err instanceof Error
-            ? `${err.message} [DEBUG:no-code]`
-            : "Something went wrong"
-      );
+      setError(code ? friendlyFirebaseError(code) : err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
