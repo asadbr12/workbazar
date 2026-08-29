@@ -46,6 +46,8 @@ function friendlyFirebaseError(code: string): string {
   }
 }
 
+const OTP_TTL_SECONDS = 90;
+
 export default function AuthForm({ role, next }: { role?: Role; next?: string }) {
   const router = useRouter();
   const [step, setStep] = useState<"phone" | "otp">("phone");
@@ -53,6 +55,7 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(OTP_TTL_SECONDS);
   const confirmationRef = useRef<ConfirmationResult | null>(null);
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
@@ -62,6 +65,16 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
       recaptchaVerifierRef.current?.clear();
     };
   }, []);
+
+  useEffect(() => {
+    if (step !== "otp" || secondsLeft <= 0) return;
+    const timer = setInterval(() => {
+      setSecondsLeft((s) => Math.max(0, s - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [step, secondsLeft]);
+
+  const expired = step === "otp" && secondsLeft <= 0;
 
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -82,6 +95,7 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
       );
       confirmationRef.current = confirmation;
       setStep("otp");
+      setSecondsLeft(OTP_TTL_SECONDS);
     } catch (err) {
       const code = (err as { code?: string })?.code;
       setError(code ? friendlyFirebaseError(code) : "Failed to send OTP");
@@ -97,7 +111,7 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
     setError(null);
     setLoading(true);
     try {
-      if (!confirmationRef.current) throw new Error("Please request a new OTP");
+      if (!confirmationRef.current || expired) throw new Error("This OTP has expired, request a new one");
       const result = await confirmationRef.current.confirm(code);
       const idToken = await result.user.getIdToken();
 
@@ -163,22 +177,37 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
               inputMode="numeric"
               maxLength={6}
               required
+              disabled={expired}
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
               placeholder="123456"
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-center text-lg tracking-[0.5em] outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-center text-lg tracking-[0.5em] outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
             />
+            <p className={`mt-1.5 text-xs ${expired ? "text-red-600" : "text-gray-500"}`}>
+              {expired ? "OTP expired — request a new one" : `Code expires in ${secondsLeft}s`}
+            </p>
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={loading || code.length !== 6}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? "Verifying..." : "Verify & Continue"}
-          </button>
+          {expired ? (
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              disabled={loading}
+              className="w-full rounded-md bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Sending..." : "Resend OTP"}
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={loading || code.length !== 6}
+              className="w-full rounded-md bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Verifying..." : "Verify & Continue"}
+            </button>
+          )}
 
           <button
             type="button"
