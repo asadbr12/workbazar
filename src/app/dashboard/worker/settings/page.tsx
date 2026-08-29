@@ -109,7 +109,7 @@ export default async function WorkerAccountSettingsPage() {
       >
         <h2 className="font-semibold text-gray-900">Log out</h2>
         <p className="mt-1 text-sm text-gray-500">
-          Sign out of Work Bazar on this device.
+          Sign out of ALWorkBazar on this device.
         </p>
         <div className="mt-3">
           <LogoutButton />

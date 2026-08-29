@@ -63,7 +63,7 @@ export default function Header() {
           className="flex items-center gap-2 text-lg font-bold tracking-tight text-gray-900 transition-transform hover:scale-[1.02]"
         >
           <Image src="/logo.svg" alt="" width={32} height={32} className="h-8 w-8" />
-          Work<span className="text-blue-600">Bazar</span>
+          ALWork<span className="text-blue-600">Bazar</span>
         </Link>
 
         <nav className="flex items-center gap-4 text-sm font-medium text-gray-700">

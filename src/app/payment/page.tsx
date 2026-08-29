@@ -65,7 +65,7 @@ export default function PaymentPage() {
         amount: data.amount,
         currency: data.currency,
         order_id: data.razorpayOrderId,
-        name: "Work Bazar",
+        name: "ALWorkBazar",
         description: "Monthly subscription",
         handler: async (response: {
           razorpay_order_id: string;
@@ -97,7 +97,7 @@ export default function PaymentPage() {
     <div className="mx-auto max-w-md px-4 py-16">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
 
-      <h1 className="text-2xl font-bold text-gray-900">Subscribe to Work Bazar</h1>
+      <h1 className="text-2xl font-bold text-gray-900">Subscribe to ALWorkBazar</h1>
       <p className="mt-1 text-sm text-gray-500">
         Unlock full access for just ₹99/month.
       </p>

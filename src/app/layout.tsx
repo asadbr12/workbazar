@@ -10,9 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Work Bazar — Find local skilled workers, fast",
+  title: "ALWorkBazar — Find local skilled workers, fast",
   description:
-    "Work Bazar connects recruiters with verified local skilled and unskilled workers — carpenters, masons, painters, electricians and more.",
+    "ALWorkBazar connects recruiters with verified local skilled and unskilled workers — carpenters, masons, painters, electricians and more.",
   icons: {
     icon: "/logo.svg",
   },
