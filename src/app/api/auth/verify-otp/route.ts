@@ -25,7 +25,13 @@ export async function POST(req: NextRequest) {
       decoded = await auth.verifyIdToken(idToken);
     } catch (err) {
       console.error("Firebase token verification failed:", err);
-      return NextResponse.json({ error: "Verification failed" }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "DEBUG-INNER: " + (err instanceof Error ? `${err.name}: ${err.message}` : String(err)),
+          code: (err as { code?: string })?.code,
+        },
+        { status: 400 }
+      );
     }
 
     const rawPhone = decoded.phone_number;
