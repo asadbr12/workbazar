@@ -5,13 +5,8 @@ export const phoneSchema = z
   .trim()
   .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number");
 
-export const sendOtpSchema = z.object({
-  phone: phoneSchema,
-});
-
-export const verifyOtpSchema = z.object({
-  phone: phoneSchema,
-  code: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code"),
+export const verifyFirebaseTokenSchema = z.object({
+  idToken: z.string().trim().min(1),
   role: z.enum(["WORKER", "RECRUITER"]).optional(),
 });
 

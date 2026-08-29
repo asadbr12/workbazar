@@ -1,20 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyOtpSchema } from "@/lib/validation";
-import { verifyOtp } from "@/lib/otp";
+import { verifyFirebaseTokenSchema } from "@/lib/validation";
+import { firebaseAdminAuth } from "@/lib/firebase-admin";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/session";
 import { hasActiveSubscription } from "@/lib/auth";
 
-const REASON_MESSAGES: Record<string, string> = {
-  not_found: "Request a new OTP before verifying",
-  expired: "This OTP has expired, request a new one",
-  too_many_attempts: "Too many incorrect attempts, request a new OTP",
-  incorrect: "Incorrect OTP",
-};
-
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const parsed = verifyOtpSchema.safeParse(body);
+  const parsed = verifyFirebaseTokenSchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
@@ -23,15 +16,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { phone, code, role } = parsed.data;
-  const result = await verifyOtp(phone, code);
+  const { idToken, role } = parsed.data;
 
-  if (!result.ok) {
-    return NextResponse.json(
-      { error: REASON_MESSAGES[result.reason] ?? "Verification failed" },
-      { status: 400 }
-    );
+  let decoded;
+  try {
+    decoded = await firebaseAdminAuth.verifyIdToken(idToken);
+  } catch (err) {
+    console.error("Firebase token verification failed:", err);
+    return NextResponse.json({ error: "Verification failed" }, { status: 400 });
   }
+
+  const rawPhone = decoded.phone_number;
+  if (!rawPhone || !rawPhone.startsWith("+91")) {
+    return NextResponse.json({ error: "Verification failed" }, { status: 400 });
+  }
+  const phone = rawPhone.slice(3);
 
   let user = await prisma.user.findUnique({
     where: { phone },
