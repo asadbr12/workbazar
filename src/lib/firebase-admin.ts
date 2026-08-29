@@ -1,5 +1,7 @@
 import { initializeApp, getApps, cert, type App } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
+import { getAuth, type Auth } from "firebase-admin/auth";
+
+let cachedAuth: Auth | null = null;
 
 function getAdminApp(): App {
   if (getApps().length) return getApps()[0];
@@ -13,4 +15,9 @@ function getAdminApp(): App {
   });
 }
 
-export const firebaseAdminAuth = getAuth(getAdminApp());
+export function getFirebaseAdminAuth(): Auth {
+  if (!cachedAuth) {
+    cachedAuth = getAuth(getAdminApp());
+  }
+  return cachedAuth;
+}

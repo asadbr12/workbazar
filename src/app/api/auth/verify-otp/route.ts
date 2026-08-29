@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyFirebaseTokenSchema } from "@/lib/validation";
-import { firebaseAdminAuth } from "@/lib/firebase-admin";
+import { getFirebaseAdminAuth } from "@/lib/firebase-admin";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/session";
 import { hasActiveSubscription } from "@/lib/auth";
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   let decoded;
   try {
-    decoded = await firebaseAdminAuth.verifyIdToken(idToken);
+    decoded = await getFirebaseAdminAuth().verifyIdToken(idToken);
   } catch (err) {
     console.error("Firebase token verification failed:", err);
     return NextResponse.json({ error: "Verification failed" }, { status: 400 });
