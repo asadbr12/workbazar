@@ -2,21 +2,38 @@ import Image from "next/image";
 import Link from "next/link";
 import { SKILL_GROUPS } from "@/lib/validation";
 import HomeHeroTagline from "@/components/HomeHeroTagline";
+import FounderQuote from "@/components/FounderQuote";
 
 export default function Home() {
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-6xl flex-col gap-[1.6vh] overflow-hidden bg-gradient-to-b from-blue-50 to-gray-50 px-[max(1rem,2vw)] py-[1.6vh] sm:h-[calc(100dvh-4rem)] sm:min-h-0">
-      <section className="shrink-0">
-        <span className="animate-badge-pulse inline-flex w-fit items-center gap-1.5 rounded-full bg-blue-600 px-[1.1vh] py-[0.4vh] text-[clamp(0.68rem,1.4vh,0.85rem)] font-bold text-white">
-          ✨ Nazdeek Kaam, Bharose Ka Kaam — Trusted Work, Right Nearby
-        </span>
-
-        <div className="mt-[1vh]">
-          <HomeHeroTagline />
+      <section className="grid shrink-0 grid-cols-1 gap-[1.6vh] sm:grid-cols-[auto_1fr] sm:items-start">
+        <div className="animate-fade-in-up flex w-[clamp(110px,16vh,168px)] flex-col items-center gap-[0.8vh]">
+          <Image
+            src="/asad.pic.jpg"
+            alt="Md Asad Siddiqui"
+            width={352}
+            height={352}
+            className="h-[clamp(110px,16vh,168px)] w-[clamp(110px,16vh,168px)] shrink-0 rounded-full border-4 border-white object-cover shadow-lg"
+          />
+          <p className="text-center text-[clamp(0.75rem,1.6vh,0.95rem)] leading-tight text-gray-500">
+            <span className="font-bold text-gray-900">Md Asad Siddiqui</span>
+            <br />
+            Founder &amp; CEO
+          </p>
+          <FounderQuote />
         </div>
 
-        <div className="mt-[1.4vh] flex flex-wrap items-center gap-[1.2vh]">
-          <form action="/search" method="get" className="flex max-w-md flex-1 gap-2">
+        <div>
+          <span className="animate-badge-pulse inline-flex w-fit items-center gap-1.5 rounded-full bg-blue-600 px-[1.1vh] py-[0.4vh] text-[clamp(0.68rem,1.4vh,0.85rem)] font-bold text-white">
+            ✨ Kam Daam, Pakka Kaam — Low Price, Guaranteed Work
+          </span>
+
+          <div className="mt-[1vh]">
+            <HomeHeroTagline />
+          </div>
+
+          <form action="/search" method="get" className="mt-[1.4vh] flex max-w-md gap-2">
             <input
               name="q"
               placeholder="Search a skill — e.g. Electrician  खोजें"
@@ -29,21 +46,6 @@ export default function Home() {
               Search
             </button>
           </form>
-
-          <div className="flex items-center gap-2">
-            <Image
-              src="/asad.pic.jpg"
-              alt="Md Asad Siddiqui"
-              width={72}
-              height={72}
-              className="h-[clamp(28px,5.5vh,42px)] w-[clamp(28px,5.5vh,42px)] shrink-0 rounded-full border-2 border-white object-cover shadow-sm"
-            />
-            <p className="text-[clamp(0.65rem,1.3vh,0.8rem)] leading-tight text-gray-500">
-              <span className="font-bold text-gray-900">Md Asad Siddiqui</span>
-              <br />
-              Founder &amp; CEO
-            </p>
-          </div>
         </div>
       </section>
 
