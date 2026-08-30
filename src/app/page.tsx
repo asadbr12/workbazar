@@ -1,13 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SKILL_GROUPS } from "@/lib/validation";
+import HomeHeroTagline from "@/components/HomeHeroTagline";
 
 export default function Home() {
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-6xl flex-col gap-[1.6vh] overflow-hidden bg-gradient-to-b from-blue-50 to-gray-50 px-[max(1rem,2vw)] py-[1.6vh] sm:h-[calc(100dvh-4rem)] sm:min-h-0">
       <section className="grid shrink-0 gap-[1.6vh] lg:grid-cols-[1.15fr_1fr] lg:gap-6">
         <div className="flex flex-col justify-center">
-          <div className="flex items-center gap-4">
+          <div className="animate-fade-in-up flex items-center gap-4">
             <Image
               src="/asad.pic.jpg"
               alt="Md Asad Siddiqui"
@@ -25,12 +26,13 @@ export default function Home() {
             </div>
           </div>
 
-          <h1 className="mt-[1.4vh] text-[clamp(1.1rem,3.2vh,2.15rem)] font-bold leading-[1.2] tracking-tight text-gray-900">
-            Hire local skilled workers, or find work near you.
-          </h1>
-          <p className="mt-[0.3vh] text-[clamp(0.95rem,2.4vh,1.6rem)] font-bold leading-[1.2] tracking-tight text-gray-900">
-            स्थानीय कुशल वर्कर को नौकरी पर रखें, या अपने पास काम ढूंढें।
-          </p>
+          <span className="animate-badge-pulse inline-flex w-fit items-center gap-1.5 rounded-full bg-blue-600 px-[1.1vh] py-[0.4vh] text-[clamp(0.68rem,1.4vh,0.85rem)] font-bold text-white">
+            ✨ Nazdeek Kaam, Bharose Ka Kaam — Trusted Work, Right Nearby
+          </span>
+
+          <div className="mt-[1vh]">
+            <HomeHeroTagline />
+          </div>
 
           <form action="/search" method="get" className="mt-[1.6vh] flex max-w-md gap-2">
             <input
@@ -50,7 +52,8 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-[1.2vh] sm:grid-cols-2">
           <Link
             href="/signup?role=WORKER"
-            className="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-[1.8vh] shadow-sm transition hover:border-blue-300 hover:shadow-md"
+            style={{ animationDelay: "80ms" }}
+            className="card-hover animate-fade-in-up flex h-full flex-col rounded-xl border border-gray-200 bg-white p-[1.8vh] shadow-sm"
           >
             <div className="flex h-[clamp(2.2rem,5vh,3rem)] w-[clamp(2.2rem,5vh,3rem)] items-center justify-center rounded-lg bg-blue-50 text-[clamp(1.1rem,2.6vh,1.5rem)] text-blue-600">
               🛠️
@@ -73,7 +76,8 @@ export default function Home() {
 
           <Link
             href="/signup?role=RECRUITER"
-            className="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-[1.8vh] shadow-sm transition hover:border-blue-300 hover:shadow-md"
+            style={{ animationDelay: "160ms" }}
+            className="card-hover animate-fade-in-up flex h-full flex-col rounded-xl border border-gray-200 bg-white p-[1.8vh] shadow-sm"
           >
             <div className="flex h-[clamp(2.2rem,5vh,3rem)] w-[clamp(2.2rem,5vh,3rem)] items-center justify-center rounded-lg bg-blue-50 text-[clamp(1.1rem,2.6vh,1.5rem)] text-blue-600">
               🔍
@@ -102,10 +106,11 @@ export default function Home() {
       >
         <div className="flex flex-1 items-center justify-center overflow-hidden">
           <div className="grid w-full grid-cols-2 gap-[2vh] lg:grid-cols-4">
-            {SKILL_GROUPS.map((group) => (
+            {SKILL_GROUPS.map((group, i) => (
               <div
                 key={group.slug}
-                className="rounded-xl border border-gray-200 bg-gray-50 p-[2.2vh]"
+                style={{ animationDelay: `${220 + i * 60}ms` }}
+                className="card-hover animate-fade-in-up rounded-xl border border-gray-200 bg-gray-50 p-[2.2vh]"
               >
                 <Link
                   href={`/skills/${group.slug}`}
