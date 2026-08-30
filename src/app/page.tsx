@@ -8,13 +8,13 @@ export default function Home() {
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-6xl flex-col gap-[1.6vh] overflow-hidden bg-gradient-to-b from-blue-50 to-gray-50 px-[max(1rem,2vw)] py-[1.6vh] sm:h-[calc(100dvh-4rem)] sm:min-h-0">
       <section className="grid shrink-0 grid-cols-1 gap-[1.6vh] sm:grid-cols-[auto_1fr] sm:items-start">
-        <div className="animate-fade-in-up flex w-[clamp(110px,16vh,168px)] flex-col items-center gap-[0.8vh]">
+        <div className="animate-fade-in-up flex w-[clamp(130px,19vh,196px)] flex-col items-center gap-[0.8vh]">
           <Image
             src="/asad.pic.jpg"
             alt="Md Asad Siddiqui"
             width={352}
             height={352}
-            className="h-[clamp(110px,16vh,168px)] w-[clamp(110px,16vh,168px)] shrink-0 rounded-full border-4 border-white object-cover shadow-lg"
+            className="h-[clamp(130px,19vh,196px)] w-[clamp(130px,19vh,196px)] shrink-0 rounded-full border-4 border-white object-cover shadow-lg"
           />
           <p className="text-center text-[clamp(0.75rem,1.6vh,0.95rem)] leading-tight text-gray-500">
             <span className="font-bold text-gray-900">Md Asad Siddiqui</span>
@@ -33,7 +33,7 @@ export default function Home() {
             <HomeHeroTagline />
           </div>
 
-          <form action="/search" method="get" className="mt-[1.4vh] flex max-w-md gap-2">
+          <form action="/search" method="get" className="mt-[3.2vh] flex max-w-md gap-2">
             <input
               name="q"
               placeholder="Search a skill — e.g. Electrician  खोजें"

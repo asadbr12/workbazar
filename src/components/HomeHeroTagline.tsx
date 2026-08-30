@@ -79,10 +79,10 @@ export default function HomeHeroTagline() {
 
   return (
     <div key={index} className="animate-fade-in">
-      <h1 className="text-[clamp(1.1rem,3.2vh,2.15rem)] font-bold leading-[1.2] tracking-tight text-gray-900">
+      <h1 className="text-[clamp(1.4rem,4vh,2.7rem)] font-extrabold leading-[1.15] tracking-tight text-gray-900">
         {current.en}
       </h1>
-      <p className="mt-[0.3vh] text-[clamp(0.95rem,2.4vh,1.6rem)] font-bold leading-[1.2] tracking-tight text-gray-900">
+      <p className="mt-[0.5vh] text-[clamp(1.15rem,2.9vh,2rem)] font-extrabold leading-[1.15] tracking-tight text-gray-900">
         {current.hi}
       </p>
     </div>

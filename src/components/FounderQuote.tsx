@@ -29,10 +29,10 @@ export default function FounderQuote() {
 
   return (
     <div key={index} className="animate-fade-in text-center">
-      <p className="text-[clamp(0.68rem,1.4vh,0.85rem)] italic leading-snug text-gray-600">
+      <p className="text-[clamp(0.74rem,1.55vh,0.92rem)] font-bold italic leading-snug text-gray-700">
         &ldquo;{current.en}&rdquo;
       </p>
-      <p className="mt-[0.3vh] text-[clamp(0.66rem,1.35vh,0.82rem)] italic leading-snug text-gray-500">
+      <p className="mt-[0.3vh] text-[clamp(0.72rem,1.5vh,0.89rem)] font-bold italic leading-snug text-gray-600">
         &ldquo;{current.hi}&rdquo;
       </p>
     </div>
