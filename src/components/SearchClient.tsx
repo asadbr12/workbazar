@@ -22,6 +22,8 @@ type WorkerResult = {
   ratingCount: number;
 };
 
+const RADIUS_OPTIONS = [2, 5, 10, 20] as const;
+
 export default function SearchClient({
   initialQuery,
   profileLat,
@@ -42,6 +44,7 @@ export default function SearchClient({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [radiusKm, setRadiusKm] = useState<number>(5);
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -57,13 +60,17 @@ export default function SearchClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function runSearch(q: string, loc: { lat: number; lng: number } | null) {
+  async function runSearch(
+    q: string,
+    loc: { lat: number; lng: number } | null,
+    radius: number = radiusKm
+  ) {
     if (!q.trim()) return;
     setLoading(true);
     setError(null);
     setSearched(true);
     try {
-      const params = new URLSearchParams({ q });
+      const params = new URLSearchParams({ q, radiusKm: String(radius) });
       if (loc) {
         params.set("lat", String(loc.lat));
         params.set("lng", String(loc.lng));
@@ -150,11 +157,50 @@ export default function SearchClient({
             : "Location unavailable — showing results without distance."}
       </p>
 
+      {origin && (
+        <div className="mt-3 flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-500">Search radius:</span>
+          {RADIUS_OPTIONS.map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => {
+                setRadiusKm(r);
+                if (query.trim()) runSearch(query, origin, r);
+              }}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                radiusKm === r
+                  ? "bg-blue-600 text-white"
+                  : "border border-gray-300 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              {r} km
+            </button>
+          ))}
+        </div>
+      )}
+
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
       {searched && !loading && results !== null && results.length === 0 && (
         <div className="mt-8 rounded-xl border border-gray-200 bg-white p-6 text-sm text-gray-500">
-          No workers found for &quot;{query}&quot;. Try a different skill name.
+          <p>
+            No workers found for &quot;{query}&quot;
+            {origin ? ` within ${radiusKm} km` : ""}.
+          </p>
+          {origin && radiusKm < RADIUS_OPTIONS[RADIUS_OPTIONS.length - 1] && (
+            <button
+              type="button"
+              onClick={() => {
+                const next = RADIUS_OPTIONS.find((r) => r > radiusKm) ?? radiusKm;
+                setRadiusKm(next);
+                runSearch(query, origin, next);
+              }}
+              className="mt-3 rounded-md bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+            >
+              Search within {RADIUS_OPTIONS.find((r) => r > radiusKm)} km
+            </button>
+          )}
         </div>
       )}
 

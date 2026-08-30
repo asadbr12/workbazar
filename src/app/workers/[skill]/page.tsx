@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { AVAILABILITY_LABELS, SKILL_GROUPS, SKILL_OPTIONS } from "@/lib/validation";
-import { haversineKm } from "@/lib/geo";
-import { getWorkerRatingStats } from "@/lib/ratings";
+import { findNearbyWorkers, DEFAULT_SEARCH_RADIUS_KM } from "@/lib/workers";
 import { formatFee } from "@/lib/format";
 import BookNowButton from "@/components/BookNowButton";
 import StarRating from "@/components/StarRating";
@@ -35,32 +33,13 @@ export default async function WorkersBySkillPage({
       ? { lat: user.recruiterProfile.lat, lng: user.recruiterProfile.lng }
       : null;
 
-  const workersRaw = isValidSkill
-    ? await prisma.workerProfile.findMany({
-        where: { skills: { has: skill } },
-        include: { user: { select: { id: true, phone: true } } },
-        orderBy: { createdAt: "desc" },
+  const { workers } = isValidSkill
+    ? await findNearbyWorkers({
+        matchSkills: [skill],
+        origin,
+        radiusKm: DEFAULT_SEARCH_RADIUS_KM,
       })
-    : [];
-
-  const ratingStats = await getWorkerRatingStats(workersRaw.map((w) => w.user.id));
-
-  const workers = workersRaw
-    .map((w) => ({
-      ...w,
-      rating: ratingStats[w.user.id]?.avg ?? 0,
-      ratingCount: ratingStats[w.user.id]?.count ?? 0,
-      distanceKm:
-        origin && w.lat !== null && w.lng !== null
-          ? Math.round(haversineKm(origin, { lat: w.lat, lng: w.lng }) * 10) / 10
-          : null,
-    }))
-    .sort((a, b) => {
-      if (a.distanceKm === null && b.distanceKm === null) return 0;
-      if (a.distanceKm === null) return 1;
-      if (b.distanceKm === null) return -1;
-      return a.distanceKm - b.distanceKm;
-    });
+    : { workers: [] };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -78,19 +57,22 @@ export default async function WorkersBySkillPage({
         </span>
       </h1>
       <p className="mt-1 text-sm text-gray-500">
-        {workers.length} registered worker{workers.length === 1 ? "" : "s"}
+        {workers.length} worker{workers.length === 1 ? "" : "s"}
+        {origin ? ` within ${DEFAULT_SEARCH_RADIUS_KM} km` : ""}
       </p>
 
       {!isValidSkill ? (
         <p className="mt-8 text-sm text-gray-500">Unknown skill.</p>
       ) : workers.length === 0 ? (
         <div className="mt-8 rounded-xl border border-gray-200 bg-white p-6 text-sm text-gray-500">
-          No workers have registered under {skill} yet. Check back soon.
+          No workers found for {skill}
+          {origin ? ` within ${DEFAULT_SEARCH_RADIUS_KM} km` : ""}. Try the full search page
+          for a wider radius.
         </div>
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {workers.map((w) => (
-            <div key={w.id} className="rounded-xl border border-gray-200 bg-white p-5">
+            <div key={w.workerUserId} className="rounded-xl border border-gray-200 bg-white p-5">
               <div className="flex items-center gap-3">
                 {w.photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -130,13 +112,13 @@ export default async function WorkersBySkillPage({
                 ))}
               </div>
               <a
-                href={`tel:+91${w.user.phone}`}
+                href={`tel:+91${w.phone}`}
                 className="mt-4 inline-block rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               >
-                Call +91 {w.user.phone}
+                Call +91 {w.phone}
               </a>
               <BookNowButton
-                workerUserId={w.user.id}
+                workerUserId={w.workerUserId}
                 skill={skill}
                 destinationLat={origin?.lat}
                 destinationLng={origin?.lng}

@@ -92,6 +92,9 @@ model WorkerProfile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([lat, lng])
+  @@index([skills], type: Gin)
 }
 
 model RecruiterProfile {
@@ -139,6 +142,8 @@ model Subscription {
   endDate   DateTime?
 
   createdAt DateTime @default(now())
+
+  @@index([userId, status])
 }
 
 model Booking {
