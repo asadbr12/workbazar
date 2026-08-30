@@ -7,7 +7,7 @@ import FounderQuote from "@/components/FounderQuote";
 export default function Home() {
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-6xl flex-col gap-[1.6vh] overflow-hidden bg-gradient-to-b from-blue-50 to-gray-50 px-[max(1rem,2vw)] py-[1.6vh] sm:h-[calc(100dvh-4rem)] sm:min-h-0">
-      <section className="grid shrink-0 grid-cols-1 gap-[1.6vh] sm:grid-cols-[auto_1fr] sm:items-start">
+      <section className="grid shrink-0 grid-cols-1 gap-[1.6vh] lg:grid-cols-[auto_minmax(0,560px)_auto] lg:items-start">
         <div className="animate-fade-in-up flex w-[clamp(130px,19vh,196px)] flex-col items-center gap-[0.8vh]">
           <Image
             src="/asad.pic.jpg"
@@ -46,6 +46,30 @@ export default function Home() {
               Search
             </button>
           </form>
+        </div>
+
+        <div className="animate-fade-in-up hidden w-[clamp(160px,18vh,208px)] flex-col gap-[1vh] lg:flex" style={{ animationDelay: "120ms" }}>
+          <div className="card-hover rounded-xl border border-gray-200 bg-white p-[1.2vh]">
+            <p className="text-[clamp(1rem,2.1vh,1.3rem)]">⚡</p>
+            <p className="mt-[0.3vh] text-[clamp(0.72rem,1.5vh,0.88rem)] font-bold text-gray-900">
+              Response in minutes
+            </p>
+            <p className="text-[clamp(0.66rem,1.35vh,0.8rem)] text-gray-500">मिनटों में जवाब</p>
+          </div>
+          <div className="card-hover rounded-xl border border-gray-200 bg-white p-[1.2vh]">
+            <p className="text-[clamp(1rem,2.1vh,1.3rem)]">📍</p>
+            <p className="mt-[0.3vh] text-[clamp(0.72rem,1.5vh,0.88rem)] font-bold text-gray-900">
+              Nearest worker, every time
+            </p>
+            <p className="text-[clamp(0.66rem,1.35vh,0.8rem)] text-gray-500">हर बार नज़दीकी वर्कर</p>
+          </div>
+          <div className="card-hover rounded-xl border border-gray-200 bg-white p-[1.2vh]">
+            <p className="text-[clamp(1rem,2.1vh,1.3rem)]">💰</p>
+            <p className="mt-[0.3vh] text-[clamp(0.72rem,1.5vh,0.88rem)] font-bold text-gray-900">
+              ₹99/month for workers
+            </p>
+            <p className="text-[clamp(0.66rem,1.35vh,0.8rem)] text-gray-500">रिक्रूटर के लिए फ्री</p>
+          </div>
         </div>
       </section>
 

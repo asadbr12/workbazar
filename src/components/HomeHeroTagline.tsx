@@ -78,13 +78,15 @@ export default function HomeHeroTagline() {
   const current = TAGLINES[index];
 
   return (
-    <div key={index} className="animate-fade-in">
-      <h1 className="text-[clamp(1.4rem,4vh,2.7rem)] font-extrabold leading-[1.15] tracking-tight text-gray-900">
-        {current.en}
-      </h1>
-      <p className="mt-[0.5vh] text-[clamp(1.15rem,2.9vh,2rem)] font-extrabold leading-[1.15] tracking-tight text-gray-900">
-        {current.hi}
-      </p>
+    <div className="min-h-[clamp(150px,22vh,230px)]">
+      <div key={index} className="animate-fade-in">
+        <h1 className="text-[clamp(1.4rem,4vh,2.7rem)] font-extrabold leading-[1.15] tracking-tight text-gray-900">
+          {current.en}
+        </h1>
+        <p className="mt-[0.5vh] text-[clamp(1.15rem,2.9vh,2rem)] font-extrabold leading-[1.15] tracking-tight text-gray-900">
+          {current.hi}
+        </p>
+      </div>
     </div>
   );
 }
