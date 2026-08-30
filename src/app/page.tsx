@@ -6,35 +6,17 @@ import HomeHeroTagline from "@/components/HomeHeroTagline";
 export default function Home() {
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-6xl flex-col gap-[1.6vh] overflow-hidden bg-gradient-to-b from-blue-50 to-gray-50 px-[max(1rem,2vw)] py-[1.6vh] sm:h-[calc(100dvh-4rem)] sm:min-h-0">
-      <section className="grid shrink-0 gap-[1.6vh] lg:grid-cols-[1.15fr_1fr] lg:gap-6">
-        <div className="flex flex-col justify-center">
-          <div className="animate-fade-in-up flex items-center gap-4">
-            <Image
-              src="/asad.pic.jpg"
-              alt="Md Asad Siddiqui"
-              width={352}
-              height={352}
-              className="h-[clamp(150px,26vh,352px)] w-[clamp(150px,26vh,352px)] shrink-0 rounded-full border-4 border-white object-cover shadow-lg"
-            />
-            <div>
-              <p className="text-[clamp(1rem,2.4vh,1.5rem)] font-bold leading-tight text-gray-900">
-                Md Asad Siddiqui
-              </p>
-              <p className="text-[clamp(0.8rem,1.8vh,1.1rem)] font-medium leading-tight text-blue-600">
-                Founder &amp; CEO
-              </p>
-            </div>
-          </div>
+      <section className="shrink-0">
+        <span className="animate-badge-pulse inline-flex w-fit items-center gap-1.5 rounded-full bg-blue-600 px-[1.1vh] py-[0.4vh] text-[clamp(0.68rem,1.4vh,0.85rem)] font-bold text-white">
+          ✨ Nazdeek Kaam, Bharose Ka Kaam — Trusted Work, Right Nearby
+        </span>
 
-          <span className="animate-badge-pulse inline-flex w-fit items-center gap-1.5 rounded-full bg-blue-600 px-[1.1vh] py-[0.4vh] text-[clamp(0.68rem,1.4vh,0.85rem)] font-bold text-white">
-            ✨ Nazdeek Kaam, Bharose Ka Kaam — Trusted Work, Right Nearby
-          </span>
+        <div className="mt-[1vh]">
+          <HomeHeroTagline />
+        </div>
 
-          <div className="mt-[1vh]">
-            <HomeHeroTagline />
-          </div>
-
-          <form action="/search" method="get" className="mt-[1.6vh] flex max-w-md gap-2">
+        <div className="mt-[1.4vh] flex flex-wrap items-center gap-[1.2vh]">
+          <form action="/search" method="get" className="flex max-w-md flex-1 gap-2">
             <input
               name="q"
               placeholder="Search a skill — e.g. Electrician  खोजें"
@@ -47,64 +29,69 @@ export default function Home() {
               Search
             </button>
           </form>
-        </div>
 
-        <div className="grid grid-cols-1 gap-[1.2vh] sm:grid-cols-2">
-          <Link
-            href="/signup?role=WORKER"
-            style={{ animationDelay: "80ms" }}
-            className="card-hover animate-fade-in-up flex h-full flex-col rounded-xl border border-gray-200 bg-white p-[1.8vh] shadow-sm"
-          >
-            <div className="flex h-[clamp(2.2rem,5vh,3rem)] w-[clamp(2.2rem,5vh,3rem)] items-center justify-center rounded-lg bg-blue-50 text-[clamp(1.1rem,2.6vh,1.5rem)] text-blue-600">
-              🛠️
-            </div>
-            <h3 className="mt-[1vh] text-[clamp(0.95rem,2.1vh,1.25rem)] font-bold leading-tight text-gray-900">
-              Looking for work?
-            </h3>
-            <p className="text-[clamp(0.78rem,1.7vh,1rem)] font-medium leading-tight text-gray-500">
-              क्या आपको काम चाहिए?
+          <div className="flex items-center gap-2">
+            <Image
+              src="/asad.pic.jpg"
+              alt="Md Asad Siddiqui"
+              width={72}
+              height={72}
+              className="h-[clamp(28px,5.5vh,42px)] w-[clamp(28px,5.5vh,42px)] shrink-0 rounded-full border-2 border-white object-cover shadow-sm"
+            />
+            <p className="text-[clamp(0.65rem,1.3vh,0.8rem)] leading-tight text-gray-500">
+              <span className="font-bold text-gray-900">Md Asad Siddiqui</span>
+              <br />
+              Founder &amp; CEO
             </p>
-            <p className="mt-[0.8vh] text-[clamp(0.7rem,1.5vh,0.88rem)] leading-snug text-gray-500">
+          </div>
+        </div>
+      </section>
+
+      <section className="grid shrink-0 grid-cols-1 gap-[1.2vh] sm:grid-cols-2">
+        <Link
+          href="/signup?role=WORKER"
+          style={{ animationDelay: "80ms" }}
+          className="card-hover animate-fade-in-up flex items-center gap-[1.2vh] rounded-xl border border-gray-200 bg-white px-[1.6vh] py-[1.2vh] shadow-sm"
+        >
+          <div className="flex h-[clamp(2rem,4.4vh,2.6rem)] w-[clamp(2rem,4.4vh,2.6rem)] shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[clamp(1rem,2.2vh,1.3rem)] text-blue-600">
+            🛠️
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[clamp(0.9rem,1.9vh,1.1rem)] font-bold leading-tight text-gray-900">
+              Looking for work? <span className="font-normal text-gray-500">क्या आपको काम चाहिए?</span>
+            </h3>
+            <p className="truncate text-[clamp(0.68rem,1.4vh,0.82rem)] leading-snug text-gray-500">
               Register as a worker — nearby recruiters will find you.
-              <br />
-              वर्कर के रूप में रजिस्टर करें — रिक्रूटर आपको ढूंढ लेंगे।
             </p>
-            <span className="mt-auto pt-[1vh] inline-flex items-center gap-1 text-[clamp(0.78rem,1.7vh,1rem)] font-bold text-blue-600">
-              Register as Worker →
-            </span>
-          </Link>
+          </div>
+          <span className="shrink-0 text-[clamp(0.78rem,1.7vh,1rem)] font-bold text-blue-600">→</span>
+        </Link>
 
-          <Link
-            href="/signup?role=RECRUITER"
-            style={{ animationDelay: "160ms" }}
-            className="card-hover animate-fade-in-up flex h-full flex-col rounded-xl border border-gray-200 bg-white p-[1.8vh] shadow-sm"
-          >
-            <div className="flex h-[clamp(2.2rem,5vh,3rem)] w-[clamp(2.2rem,5vh,3rem)] items-center justify-center rounded-lg bg-blue-50 text-[clamp(1.1rem,2.6vh,1.5rem)] text-blue-600">
-              🔍
-            </div>
-            <h3 className="mt-[1vh] text-[clamp(0.95rem,2.1vh,1.25rem)] font-bold leading-tight text-gray-900">
-              Need a worker?
+        <Link
+          href="/signup?role=RECRUITER"
+          style={{ animationDelay: "160ms" }}
+          className="card-hover animate-fade-in-up flex items-center gap-[1.2vh] rounded-xl border border-gray-200 bg-white px-[1.6vh] py-[1.2vh] shadow-sm"
+        >
+          <div className="flex h-[clamp(2rem,4.4vh,2.6rem)] w-[clamp(2rem,4.4vh,2.6rem)] shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[clamp(1rem,2.2vh,1.3rem)] text-blue-600">
+            🔍
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[clamp(0.9rem,1.9vh,1.1rem)] font-bold leading-tight text-gray-900">
+              Need a worker? <span className="font-normal text-gray-500">मुझे वर्कर चाहिए?</span>
             </h3>
-            <p className="text-[clamp(0.78rem,1.7vh,1rem)] font-medium leading-tight text-gray-500">
-              मुझे काम के लिए वर्कर चाहिए?
-            </p>
-            <p className="mt-[0.8vh] text-[clamp(0.7rem,1.5vh,0.88rem)] leading-snug text-gray-500">
+            <p className="truncate text-[clamp(0.68rem,1.4vh,0.82rem)] leading-snug text-gray-500">
               Register — a skilled worker will be ready to contact.
-              <br />
-              रजिस्टर करें — कुशल वर्कर तुरंत मिलेगा।
             </p>
-            <span className="mt-auto pt-[1vh] inline-flex items-center gap-1 text-[clamp(0.78rem,1.7vh,1rem)] font-bold text-blue-600">
-              Register as Recruiter →
-            </span>
-          </Link>
-        </div>
+          </div>
+          <span className="shrink-0 text-[clamp(0.78rem,1.7vh,1rem)] font-bold text-blue-600">→</span>
+        </Link>
       </section>
 
       <section
         id="skills"
         className="flex min-h-0 flex-1 flex-col rounded-xl border border-gray-200 bg-white p-[1.6vh]"
       >
-        <div className="flex flex-1 items-center justify-center overflow-hidden">
+        <div className="flex flex-1 items-start justify-center overflow-hidden pt-[1vh]">
           <div className="grid w-full grid-cols-2 gap-[2vh] lg:grid-cols-4">
             {SKILL_GROUPS.map((group, i) => (
               <div
