@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getUnreadInboxCount } from "@/lib/inbox";
 import RecruiterDashboardSidebar from "@/components/RecruiterDashboardSidebar";
 
 export default async function RecruiterDashboardLayout({
@@ -13,13 +14,17 @@ export default async function RecruiterDashboardLayout({
   if (user.role === "WORKER") redirect("/dashboard/worker");
   if (!user.recruiterProfile) redirect("/register/recruiter");
 
-  const pendingBookingCount = await prisma.booking.count({
-    where: { recruiterId: user.id, status: "REQUESTED" },
-  });
+  const [pendingBookingCount, unreadInboxCount] = await Promise.all([
+    prisma.booking.count({ where: { recruiterId: user.id, status: "REQUESTED" } }),
+    getUnreadInboxCount(user.id, "RECRUITER"),
+  ]);
 
   return (
     <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <RecruiterDashboardSidebar pendingBookingCount={pendingBookingCount} />
+      <RecruiterDashboardSidebar
+        pendingBookingCount={pendingBookingCount}
+        unreadInboxCount={unreadInboxCount}
+      />
       <div className="min-w-0 flex-1">{children}</div>
     </div>
   );

@@ -173,16 +173,8 @@ export default async function RecruiterDashboardPage() {
             delay={400}
           >
             <dl className="space-y-2.5 text-sm">
-              <SummaryRow icon="🏢" label="Business Type" value={profile.businessType || "—"} />
-              <SummaryRow icon="🧾" label="GST Number" value={profile.gstNumber || "—"} />
-              <SummaryRow icon="💳" label="Payment Terms" value={profile.paymentTerms || "—"} />
-              <SummaryRow icon="💰" label="Budget Range" value={profile.budgetRange || "—"} />
-              <SummaryRow
-                icon="🛠️"
-                label="Worker Types Needed"
-                value={profile.workerTypesNeeded.join(", ") || "—"}
-              />
-              <SummaryRow icon="📍" label="Pincode" value={profile.pincode || "—"} />
+              <SummaryRow icon="📍" label="Address" value={profile.officeAddress || "—"} />
+              <SummaryRow icon="🏷️" label="Pincode" value={profile.pincode || "—"} />
               <SummaryRow icon="📞" label="Phone" value={`+91 ${user.phone}`} />
               <SummaryRow
                 icon="📅"

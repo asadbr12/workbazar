@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { haversineKm } from "@/lib/geo";
+import BookingChat from "@/components/BookingChat";
 
 const BookingMap = dynamic(() => import("@/components/BookingMap"), {
   ssr: false,
@@ -370,6 +371,11 @@ export default function BookingTracker({
               )}
             </div>
           )}
+
+          <BookingChat
+            bookingId={booking.id}
+            viewerId={viewerRole === "RECRUITER" ? booking.recruiter.id : booking.worker.id}
+          />
         </div>
       </div>
     </div>

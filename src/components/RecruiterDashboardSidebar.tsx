@@ -7,6 +7,7 @@ const WORK_ITEMS = [
   { href: "/dashboard/recruiter", label: "Dashboard", icon: "🏠", exact: true },
   { href: "/dashboard/recruiter/bookings", label: "My Bookings", icon: "📋", exact: false },
   { href: "/search", label: "Find Workers", icon: "🔍", exact: false },
+  { href: "/dashboard/recruiter/inbox", label: "Inbox", icon: "💬", exact: false },
   { href: "/dashboard/recruiter/reviews", label: "Reviews", icon: "⭐", exact: false },
 ] as const;
 
@@ -17,13 +18,16 @@ const PROFILE_ITEMS = [
 
 export default function RecruiterDashboardSidebar({
   pendingBookingCount,
+  unreadInboxCount,
 }: {
   pendingBookingCount: number;
+  unreadInboxCount: number;
 }) {
   const pathname = usePathname();
 
   const badges: Record<string, number> = {
     "/dashboard/recruiter/bookings": pendingBookingCount,
+    "/dashboard/recruiter/inbox": unreadInboxCount,
   };
 
   function isActive(href: string, exact: boolean) {

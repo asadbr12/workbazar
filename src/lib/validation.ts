@@ -103,6 +103,10 @@ export const bookingRatingSchema = z.object({
   comment: z.string().trim().max(500).optional().or(z.literal("")),
 });
 
+export const sendMessageSchema = z.object({
+  body: z.string().trim().min(1, "Message can't be empty").max(1000),
+});
+
 export const SKILL_GROUPS = [
   {
     slug: "skilled-trades",

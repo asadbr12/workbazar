@@ -7,6 +7,7 @@ const WORK_ITEMS = [
   { href: "/dashboard/worker", label: "Dashboard", icon: "🏠", exact: true },
   { href: "/dashboard/worker/bookings", label: "Booking Requests", icon: "📋", exact: false },
   { href: "/dashboard/worker/jobs", label: "My Jobs", icon: "💼", exact: false },
+  { href: "/dashboard/worker/inbox", label: "Inbox", icon: "💬", exact: false },
   { href: "/dashboard/worker/reviews", label: "Reviews", icon: "⭐", exact: false },
 ] as const;
 
@@ -17,13 +18,16 @@ const PROFILE_ITEMS = [
 
 export default function WorkerDashboardSidebar({
   bookingRequestCount,
+  unreadInboxCount,
 }: {
   bookingRequestCount: number;
+  unreadInboxCount: number;
 }) {
   const pathname = usePathname();
 
   const badges: Record<string, number> = {
     "/dashboard/worker/bookings": bookingRequestCount,
+    "/dashboard/worker/inbox": unreadInboxCount,
   };
 
   function isActive(href: string, exact?: boolean) {

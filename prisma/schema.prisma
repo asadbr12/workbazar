@@ -44,6 +44,7 @@ model User {
 
   bookingsAsRecruiter Booking[] @relation("RecruiterBookings")
   bookingsAsWorker    Booking[] @relation("WorkerBookings")
+  messages            Message[]
 }
 
 model OtpCode {
@@ -177,9 +178,28 @@ model Booking {
   ratingComment String?
   ratedAt       DateTime?
 
+  recruiterReadAt DateTime?
+  workerReadAt    DateTime?
+  messages        Message[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([recruiterId])
   @@index([workerId])
+}
+
+model Message {
+  id String @id @default(cuid())
+
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  senderId  String
+  sender    User    @relation(fields: [senderId], references: [id])
+
+  body String
+
+  createdAt DateTime @default(now())
+
+  @@index([bookingId, createdAt])
 }
