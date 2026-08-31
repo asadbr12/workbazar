@@ -11,6 +11,7 @@ type WorkerResult = {
   skills: string[];
   matchedSkills: string[];
   pincode: string;
+  matchedByDistrict: boolean;
   experienceYears: number;
   feePerDay: number | null;
   feePerHour: number | null;
@@ -231,6 +232,11 @@ export default function SearchClient({
               </p>
               <p className="mt-1 text-sm font-medium text-gray-700">
                 {w.distanceKm !== null ? `${w.distanceKm} km away` : `Pincode ${w.pincode}`}
+                {w.matchedByDistrict && (
+                  <span className="ml-2 rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
+                    🏘️ Same district
+                  </span>
+                )}
               </p>
               <p className="mt-1 text-sm text-blue-700">
                 {formatFee(w.feePerDay, w.feePerHour)}

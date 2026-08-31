@@ -6,6 +6,10 @@ import { getSession } from "@/lib/session";
 const PLAN_AMOUNT_INR = 99;
 const isRazorpayConfigured = () =>
   Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
+// Same umbrella demo-mode flag used to bypass Firebase OTP — when it's on,
+// skip real Razorpay too so a full demo (signup -> payment -> dashboard)
+// never touches a live integration, even though real test keys are set.
+const isDemoModeEnabled = () => process.env.NEXT_PUBLIC_DEMO_OTP_ENABLED === "true";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -25,9 +29,10 @@ export async function POST(req: NextRequest) {
 
   const { paymentMethod } = parsed.data;
 
-  if (!isRazorpayConfigured()) {
-    // Demo mode: no Razorpay keys configured, simulate an instantly
-    // successful payment so the full flow can be tested end to end.
+  if (!isRazorpayConfigured() || isDemoModeEnabled()) {
+    // Demo mode: no Razorpay keys configured (or demo mode explicitly on),
+    // simulate an instantly successful payment so the full flow can be
+    // tested end to end.
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + 1);

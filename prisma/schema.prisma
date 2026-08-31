@@ -70,6 +70,9 @@ model WorkerProfile {
   age                Int
   gender             String
   address            String
+  state              String?
+  district           String?
+  town               String?
   pincode            String
   aadharNumber       String?
   lat                Float?
@@ -95,6 +98,7 @@ model WorkerProfile {
 
   @@index([lat, lng])
   @@index([skills], type: Gin)
+  @@index([district])
 }
 
 model RecruiterProfile {
@@ -109,6 +113,8 @@ model RecruiterProfile {
   photoUrl     String?
 
   officeAddress String
+  state         String?
+  district      String?
   pincode       String  @default("")
   lat           Float?
   lng           Float?
@@ -123,6 +129,8 @@ model RecruiterProfile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([district])
 }
 
 model Subscription {

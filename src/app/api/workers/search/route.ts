@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { getCurrentUser } from "@/lib/auth";
 import { SKILL_OPTIONS } from "@/lib/validation";
 import {
   findNearbyWorkers,
@@ -8,8 +8,8 @@ import {
 } from "@/lib/workers";
 
 export async function GET(req: NextRequest) {
-  const session = await getSession();
-  if (!session) {
+  const user = await getCurrentUser();
+  if (!user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
     matchSkills: matchedSkills,
     origin: hasOrigin ? { lat: lat!, lng: lng! } : null,
     radiusKm,
+    district: user.recruiterProfile?.district ?? null,
   });
 
   return NextResponse.json({ ok: true, matchedSkills, workers, radiusKm, boundedByLocation });

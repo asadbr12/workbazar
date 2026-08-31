@@ -57,7 +57,7 @@ export default function Header() {
 
   return (
     <header className="relative z-50 h-16 shrink-0 border-b border-black/10 bg-white">
-      <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-full max-w-5xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
           className="flex items-center gap-2 text-lg font-bold tracking-tight text-gray-900 transition-transform hover:scale-[1.02]"

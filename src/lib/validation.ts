@@ -10,11 +10,20 @@ export const verifyFirebaseTokenSchema = z.object({
   role: z.enum(["WORKER", "RECRUITER"]).optional(),
 });
 
+export const demoLoginSchema = z.object({
+  phone: z.string().trim().regex(/^\d{10}$/, "Enter a 10-digit number"),
+  code: z.string().trim().min(1),
+  role: z.enum(["WORKER", "RECRUITER"]).optional(),
+});
+
 export const workerRegistrationSchema = z.object({
   fullName: z.string().trim().min(2).max(100),
   age: z.coerce.number().int().min(18, "Must be 18 or older").max(100),
   gender: z.enum(["MALE", "FEMALE", "OTHER"]),
   address: z.string().trim().min(5).max(300),
+  state: z.string().trim().min(1, "Select a state"),
+  district: z.string().trim().min(1, "Select a district"),
+  town: z.string().trim().max(100).optional().or(z.literal("")),
   pincode: z.string().trim().regex(/^\d{6}$/, "Enter a valid 6-digit pincode"),
   aadharNumber: z
     .string()
@@ -41,6 +50,8 @@ export const recruiterRegistrationSchema = z.object({
   businessType: z.string().trim().max(100).optional().or(z.literal("")),
   gstNumber: z.string().trim().max(20).optional().or(z.literal("")),
   officeAddress: z.string().trim().min(5).max(300),
+  state: z.string().trim().min(1, "Select a state"),
+  district: z.string().trim().min(1, "Select a district"),
   pincode: z.string().trim().regex(/^\d{6}$/, "Enter a valid 6-digit pincode"),
   serviceAreas: z.array(z.string()).optional().default([]),
   workerTypesNeeded: z.array(z.string()).optional().default([]),

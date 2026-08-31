@@ -47,6 +47,8 @@ function friendlyFirebaseError(code: string): string {
 }
 
 const OTP_TTL_SECONDS = 90;
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_OTP_ENABLED === "true";
+const DEMO_OTP_CODE = "123456";
 
 export default function AuthForm({ role, next }: { role?: Role; next?: string }) {
   const router = useRouter();
@@ -81,6 +83,11 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
     setError(null);
     setLoading(true);
     try {
+      if (DEMO_MODE) {
+        setStep("otp");
+        setSecondsLeft(OTP_TTL_SECONDS);
+        return;
+      }
       if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
         recaptchaVerifierRef.current = new RecaptchaVerifier(
           firebaseAuth,
@@ -111,7 +118,22 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
     setError(null);
     setLoading(true);
     try {
-      if (!confirmationRef.current || expired) throw new Error("This OTP has expired, request a new one");
+      if (expired) throw new Error("This OTP has expired, request a new one");
+
+      if (DEMO_MODE) {
+        const res = await fetch("/api/auth/demo-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, code, role }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "Verification failed");
+        router.push(nextStepUrl(data, next));
+        router.refresh();
+        return;
+      }
+
+      if (!confirmationRef.current) throw new Error("This OTP has expired, request a new one");
       const result = await confirmationRef.current.confirm(code);
       const idToken = await result.user.getIdToken();
 
@@ -186,6 +208,11 @@ export default function AuthForm({ role, next }: { role?: Role; next?: string })
             <p className={`mt-1.5 text-xs ${expired ? "text-red-600" : "text-gray-500"}`}>
               {expired ? "OTP expired — request a new one" : `Code expires in ${secondsLeft}s`}
             </p>
+            {DEMO_MODE && (
+              <p className="mt-1 text-xs font-medium text-amber-600">
+                Demo mode — enter {DEMO_OTP_CODE} to continue
+              </p>
+            )}
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}

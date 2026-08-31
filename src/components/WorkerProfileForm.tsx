@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SKILL_GROUPS } from "@/lib/validation";
+import { INDIA_STATES_AND_DISTRICTS } from "@/lib/india-locations";
 import PhotoUpload from "@/components/PhotoUpload";
 
 export type WorkerFormValues = {
@@ -10,8 +11,10 @@ export type WorkerFormValues = {
   age: string;
   gender: string;
   address: string;
+  state: string;
+  district: string;
+  town: string;
   pincode: string;
-  aadharNumber: string;
   skills: string[];
   experienceYears: string;
   feePerDay: string;
@@ -30,8 +33,10 @@ const DEFAULT_VALUES: WorkerFormValues = {
   age: "",
   gender: "MALE",
   address: "",
+  state: "",
+  district: "",
+  town: "",
   pincode: "",
-  aadharNumber: "",
   skills: [],
   experienceYears: "",
   feePerDay: "",
@@ -44,6 +49,8 @@ const DEFAULT_VALUES: WorkerFormValues = {
   lng: "",
   photoUrl: "",
 };
+
+type FeeType = "PER_DAY" | "PER_HOUR";
 
 export default function WorkerProfileForm({
   initial,
@@ -60,12 +67,23 @@ export default function WorkerProfileForm({
 }) {
   const router = useRouter();
   const [form, setForm] = useState<WorkerFormValues>({ ...DEFAULT_VALUES, ...initial });
+  const [feeType, setFeeType] = useState<FeeType>(
+    initial?.feePerHour && !initial?.feePerDay ? "PER_HOUR" : "PER_DAY"
+  );
+  const [feeAmount, setFeeAmount] = useState(
+    initial?.feePerHour && !initial?.feePerDay ? initial.feePerHour : initial?.feePerDay ?? ""
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [showCustomSkill, setShowCustomSkill] = useState(false);
   const [customSkill, setCustomSkill] = useState("");
+
+  const districtOptions = useMemo(
+    () => INDIA_STATES_AND_DISTRICTS.find((s) => s.state === form.state)?.districts ?? [],
+    [form.state]
+  );
 
   function update<K extends keyof WorkerFormValues>(key: K, value: WorkerFormValues[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -133,6 +151,8 @@ export default function WorkerProfileForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          feePerDay: feeType === "PER_DAY" ? feeAmount || undefined : undefined,
+          feePerHour: feeType === "PER_HOUR" ? feeAmount || undefined : undefined,
           lat: form.lat || undefined,
           lng: form.lng || undefined,
         }),
@@ -149,30 +169,57 @@ export default function WorkerProfileForm({
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-900">{heading}</h1>
-      <p className="mt-1 text-sm text-gray-500">{subheading}</p>
+    <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6 lg:px-8">
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-100 px-4 py-3 sm:px-5 sm:py-3.5">
+        <div className="relative z-10 max-w-xl">
+          <h1 className="text-lg font-extrabold text-gray-900 sm:text-xl">{heading}</h1>
+          <p className="mt-0.5 text-xs text-gray-500">{subheading}</p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <Badge color="blue" icon="🛡️">
+              Verified Clients <span className="font-normal opacity-70">सत्यापित ग्राहक</span>
+            </Badge>
+            <Badge color="purple" icon="📅">
+              Daily Work Opportunities <span className="font-normal opacity-70">रोज़ काम के मौके</span>
+            </Badge>
+          </div>
+        </div>
+        <div className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 sm:block">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/70 text-xl shadow-inner">
+            👷
+          </div>
+          <span className="absolute -left-2 -top-1 flex h-5 w-5 items-center justify-center rounded-lg bg-white text-[10px] shadow">
+            🔧
+          </span>
+          <span className="absolute -right-2 bottom-0 flex h-5 w-5 items-center justify-center rounded-lg bg-white text-[10px] shadow">
+            🪛
+          </span>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-8">
-        <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-6">
-          <h2 className="font-semibold text-gray-900">Personal details</h2>
+      <form onSubmit={handleSubmit} className="mt-3 space-y-3">
+        <section className="rounded-xl border border-gray-200 bg-white p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <SectionHeading color="violet" icon="👤" en="Personal Details" hi="व्यक्तिगत जानकारी" />
+            <PhotoUpload
+              hideLabel
+              value={form.photoUrl}
+              onChange={(url) => update("photoUrl", url)}
+              required
+            />
+          </div>
 
-          <PhotoUpload
-            value={form.photoUrl}
-            onChange={(url) => update("photoUrl", url)}
-            required
-          />
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label="Full name">
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <IconField en="Full Name" hi="पूरा नाम" icon="👤">
               <input
                 required
                 value={form.fullName}
                 onChange={(e) => update("fullName", e.target.value)}
-                className="input"
+                placeholder="Enter your full name"
+                className="input pl-9"
               />
-            </Field>
-            <Field label="Age">
+            </IconField>
+            <Field en="Age" hi="उम्र">
               <input
                 type="number"
                 min={18}
@@ -180,94 +227,140 @@ export default function WorkerProfileForm({
                 required
                 value={form.age}
                 onChange={(e) => update("age", e.target.value)}
+                placeholder="Enter your age"
                 className="input"
               />
+              <p className="mt-0.5 text-xs text-gray-400">
+                18+ — उम्र 18 या ज़्यादा होनी चाहिए
+              </p>
             </Field>
-            <Field label="Gender">
+            <Field en="Gender" hi="लिंग">
               <select
                 value={form.gender}
                 onChange={(e) => update("gender", e.target.value)}
                 className="input"
               >
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
+                <option value="MALE">Male / पुरुष</option>
+                <option value="FEMALE">Female / महिला</option>
+                <option value="OTHER">Other / अन्य</option>
               </select>
             </Field>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
             <div className="sm:col-span-2">
-              <Field label="Address">
+              <IconField en="Address" hi="पता" icon="📍">
                 <textarea
                   required
                   rows={2}
                   value={form.address}
                   onChange={(e) => update("address", e.target.value)}
-                  className="input"
+                  placeholder="Enter your complete address"
+                  className="input pl-9"
                 />
-              </Field>
+              </IconField>
             </div>
-            <Field label="Pincode">
+            <IconField en="Pincode" hi="पिनकोड" icon="📮">
               <input
                 required
                 maxLength={6}
                 value={form.pincode}
-                onChange={(e) =>
-                  update("pincode", e.target.value.replace(/\D/g, ""))
-                }
-                className="input"
+                onChange={(e) => update("pincode", e.target.value.replace(/\D/g, ""))}
+                placeholder="Enter pincode"
+                className="input pl-9"
               />
-            </Field>
+            </IconField>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label="Aadhar number (optional)">
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <Field en="State" hi="राज्य">
+              <select
+                required
+                value={form.state}
+                onChange={(e) => {
+                  update("state", e.target.value);
+                  update("district", "");
+                }}
+                className="input"
+              >
+                <option value="" disabled>
+                  Select state…
+                </option>
+                {INDIA_STATES_AND_DISTRICTS.map((s) => (
+                  <option key={s.state} value={s.state}>
+                    {s.state}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field en="District" hi="ज़िला">
+              <select
+                required
+                disabled={!form.state}
+                value={form.district}
+                onChange={(e) => update("district", e.target.value)}
+                className="input disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                <option value="" disabled>
+                  {form.state ? "Select district…" : "Select state first"}
+                </option>
+                {districtOptions.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field en="Town / Area (optional)" hi="कस्बा / इलाका">
               <input
-                maxLength={12}
-                value={form.aadharNumber}
-                onChange={(e) =>
-                  update("aadharNumber", e.target.value.replace(/\D/g, ""))
-                }
+                placeholder="e.g. Rajgir"
+                value={form.town}
+                onChange={(e) => update("town", e.target.value)}
                 className="input"
               />
             </Field>
-            <div className="sm:col-span-2 flex flex-col justify-end">
-              <button
-                type="button"
-                onClick={useMyLocation}
-                disabled={locating}
-                className="rounded-md border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
-              >
-                {locating
-                  ? "Locating..."
-                  : form.lat
-                    ? "✓ Location captured — nearest search will find you"
-                    : "📍 Use my current location"}
-              </button>
-              {locationError && (
-                <p className="mt-1 text-xs text-red-600">{locationError}</p>
-              )}
-              <p className="mt-1 text-xs text-gray-400">
-                Lets recruiters see how far you are when they search nearby.
-              </p>
-            </div>
           </div>
+          <p className="mt-0.5 text-xs text-gray-400">
+            Pincode + District used to match you with nearby recruiters — पास के रिक्रूटर से मिलान
+          </p>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={useMyLocation}
+              disabled={locating}
+              className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 transition hover:bg-violet-100 disabled:opacity-50"
+            >
+              {locating
+                ? "Locating..."
+                : form.lat
+                  ? "✓ Location captured"
+                  : "📍 Use my current location"}
+            </button>
+            <span className="text-xs text-gray-400">
+              Let recruiters see how far you are when they search nearby.
+            </span>
+          </div>
+          {locationError && <p className="mt-0.5 text-xs text-red-600">{locationError}</p>}
         </section>
 
-        <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-6">
-          <h2 className="font-semibold text-gray-900">Professional details</h2>
+        <section className="rounded-xl border border-gray-200 bg-white p-3">
+          <SectionHeading
+            color="green"
+            icon="🛠️"
+            en="Professional Details"
+            hi="काम की जानकारी"
+          />
 
-          <div>
-            <label className="label">Skills</label>
-            <p className="mt-0.5 text-xs text-gray-400">
-              Select a skill to add it below — स्किल चुनें, नीचे जुड़ जाएगी
-            </p>
+          <div className="mt-2">
+            <label className="label">
+              Skills <span className="font-normal text-gray-400">कौन सा काम करना जानते हो</span>
+            </label>
 
             <select
               value=""
               onChange={(e) => handleSkillSelect(e.target.value)}
-              className="input mt-2 sm:max-w-md"
+              className="input mt-1"
             >
               <option value="" disabled>
                 Select a skill…
@@ -287,7 +380,7 @@ export default function WorkerProfileForm({
             </select>
 
             {showCustomSkill && (
-              <div className="mt-2 flex gap-2 sm:max-w-md">
+              <div className="mt-2 flex gap-2">
                 <input
                   autoFocus
                   value={customSkill}
@@ -316,13 +409,13 @@ export default function WorkerProfileForm({
                 {form.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700"
+                    className="flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700"
                   >
                     {skill}
                     <button
                       type="button"
                       onClick={() => removeSkill(skill)}
-                      className="text-blue-400 hover:text-red-600"
+                      className="text-green-400 hover:text-red-600"
                       aria-label={`Remove ${skill}`}
                     >
                       &times;
@@ -333,8 +426,8 @@ export default function WorkerProfileForm({
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Field label="Years of experience">
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <Field en="Experience (yrs)" hi="अनुभव (वर्ष)">
               <input
                 type="number"
                 min={0}
@@ -342,72 +435,43 @@ export default function WorkerProfileForm({
                 required
                 value={form.experienceYears}
                 onChange={(e) => update("experienceYears", e.target.value)}
+                placeholder="e.g. 3"
                 className="input"
               />
             </Field>
-            <Field label="Fee (₹/day)">
+            <Field en="Charge Type" hi="भाड़ा किस हिसाब से">
+              <select
+                value={feeType}
+                onChange={(e) => setFeeType(e.target.value as FeeType)}
+                className="input"
+              >
+                <option value="PER_DAY">Per Day / प्रति दिन</option>
+                <option value="PER_HOUR">Per Hour / प्रति घंटा</option>
+              </select>
+            </Field>
+            <Field
+              en={feeType === "PER_DAY" ? "Fee per Day (₹)" : "Fee per Hour (₹)"}
+              hi="फीस (₹)"
+            >
               <input
                 type="number"
                 min={0}
-                placeholder="e.g. 600"
-                value={form.feePerDay}
-                onChange={(e) => update("feePerDay", e.target.value)}
+                placeholder={feeType === "PER_DAY" ? "e.g. 600" : "e.g. 80"}
+                value={feeAmount}
+                onChange={(e) => setFeeAmount(e.target.value)}
                 className="input"
               />
             </Field>
-            <Field label="Fee (₹/hour)">
-              <input
-                type="number"
-                min={0}
-                placeholder="e.g. 80"
-                value={form.feePerHour}
-                onChange={(e) => update("feePerHour", e.target.value)}
-                className="input"
-              />
-            </Field>
-            <Field label="Availability">
+            <Field en="Availability" hi="कब काम कर सकते हो">
               <select
                 value={form.availability}
                 onChange={(e) => update("availability", e.target.value)}
                 className="input"
               >
-                <option value="DAY">Day</option>
-                <option value="NIGHT">Night</option>
-                <option value="BOTH">Both Day &amp; Night</option>
+                <option value="DAY">Day / दिन</option>
+                <option value="NIGHT">Night / रात</option>
+                <option value="BOTH">Both Day &amp; Night / दिन और रात दोनों</option>
               </select>
-            </Field>
-          </div>
-        </section>
-
-        <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-6">
-          <h2 className="font-semibold text-gray-900">Travel &amp; payment</h2>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label="Willing to travel (km)">
-              <input
-                type="number"
-                min={0}
-                max={500}
-                required
-                value={form.travelDistanceKm}
-                onChange={(e) => update("travelDistanceKm", e.target.value)}
-                className="input"
-              />
-            </Field>
-            <Field label="UPI ID (optional)">
-              <input
-                placeholder="name@bank"
-                value={form.upiId}
-                onChange={(e) => update("upiId", e.target.value)}
-                className="input"
-              />
-            </Field>
-            <Field label="Account number (optional)">
-              <input
-                value={form.accountNumber}
-                onChange={(e) => update("accountNumber", e.target.value)}
-                className="input"
-              />
             </Field>
           </div>
         </section>
@@ -417,20 +481,103 @@ export default function WorkerProfileForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-4 py-2.5 font-semibold text-white shadow-md transition hover:opacity-90 disabled:opacity-50"
         >
-          {loading ? "Saving..." : submitLabel}
+          🔒 {loading ? "Saving..." : submitLabel} <span aria-hidden>→</span>
         </button>
+        <p className="text-center text-xs text-gray-400">
+          🛡️ Your information is safe and secure with us — आपकी जानकारी सुरक्षित है
+        </p>
       </form>
     </div>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+const BADGE_STYLES: Record<string, string> = {
+  green: "bg-green-50 text-green-700",
+  blue: "bg-blue-50 text-blue-700",
+  purple: "bg-purple-50 text-purple-700",
+};
+
+function Badge({
+  color,
+  icon,
+  children,
+}: {
+  color: keyof typeof BADGE_STYLES;
+  icon: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${BADGE_STYLES[color]}`}
+    >
+      {icon} {children}
+    </span>
+  );
+}
+
+const ICON_BG_STYLES: Record<string, string> = {
+  violet: "bg-gradient-to-br from-violet-600 to-purple-600",
+  green: "bg-gradient-to-br from-emerald-500 to-green-600",
+};
+
+function SectionHeading({
+  color,
+  icon,
+  en,
+  hi,
+}: {
+  color: keyof typeof ICON_BG_STYLES;
+  icon: string;
+  en: string;
+  hi: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm text-white ${ICON_BG_STYLES[color]}`}
+      >
+        {icon}
+      </span>
+      <h2 className="text-sm font-bold text-gray-900 sm:text-base">
+        {en} <span className="font-normal text-gray-400">{hi}</span>
+      </h2>
+    </div>
+  );
+}
+
+function Field({ en, hi, children }: { en: string; hi: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="label">{label}</label>
+      <label className="label">
+        {en} <span className="font-normal text-gray-400">{hi}</span>
+      </label>
       <div className="mt-1">{children}</div>
+    </div>
+  );
+}
+
+function IconField({
+  en,
+  hi,
+  icon,
+  children,
+}: {
+  en: string;
+  hi: string;
+  icon: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="label">
+        {en} <span className="font-normal text-gray-400">{hi}</span>
+      </label>
+      <div className="relative mt-1">
+        <span className="pointer-events-none absolute left-3 top-3 text-gray-400">{icon}</span>
+        {children}
+      </div>
     </div>
   );
 }

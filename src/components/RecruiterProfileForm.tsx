@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { INDIA_STATES_AND_DISTRICTS } from "@/lib/india-locations";
 
 export type RecruiterFormValues = {
   fullName: string;
   address: string;
+  state: string;
+  district: string;
   pincode: string;
   lat: string;
   lng: string;
@@ -14,6 +17,8 @@ export type RecruiterFormValues = {
 const DEFAULT_VALUES: RecruiterFormValues = {
   fullName: "",
   address: "",
+  state: "",
+  district: "",
   pincode: "",
   lat: "",
   lng: "",
@@ -38,6 +43,11 @@ export default function RecruiterProfileForm({
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+
+  const districtOptions = useMemo(
+    () => INDIA_STATES_AND_DISTRICTS.find((s) => s.state === form.state)?.districts ?? [],
+    [form.state]
+  );
 
   function update<K extends keyof RecruiterFormValues>(key: K, value: RecruiterFormValues[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -75,6 +85,8 @@ export default function RecruiterProfileForm({
         body: JSON.stringify({
           fullName: form.fullName,
           officeAddress: form.address,
+          state: form.state,
+          district: form.district,
           pincode: form.pincode,
           lat: form.lat || undefined,
           lng: form.lng || undefined,
@@ -119,6 +131,47 @@ export default function RecruiterProfileForm({
           />
         </Field>
 
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="State" hindi="राज्य">
+            <select
+              required
+              value={form.state}
+              onChange={(e) => {
+                update("state", e.target.value);
+                update("district", "");
+              }}
+              className="input"
+            >
+              <option value="" disabled>
+                Select state…
+              </option>
+              {INDIA_STATES_AND_DISTRICTS.map((s) => (
+                <option key={s.state} value={s.state}>
+                  {s.state}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="District" hindi="ज़िला">
+            <select
+              required
+              disabled={!form.state}
+              value={form.district}
+              onChange={(e) => update("district", e.target.value)}
+              className="input disabled:bg-gray-100 disabled:text-gray-400"
+            >
+              <option value="" disabled>
+                {form.state ? "Select district…" : "Select state first"}
+              </option>
+              {districtOptions.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+
         <Field label="Pincode" hindi="पिन कोड">
           <input
             required
@@ -128,6 +181,9 @@ export default function RecruiterProfileForm({
             onChange={(e) => update("pincode", e.target.value.replace(/\D/g, ""))}
             className="input"
           />
+          <p className="mt-1 text-xs text-gray-400">
+            Helps match you with workers in your district — पास के ज़िले के वर्कर से मिलान के लिए
+          </p>
         </Field>
 
         <div>

@@ -6,10 +6,12 @@ export default function PhotoUpload({
   value,
   onChange,
   required,
+  hideLabel,
 }: {
   value: string;
   onChange: (url: string) => void;
   required?: boolean;
+  hideLabel?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -38,33 +40,47 @@ export default function PhotoUpload({
 
   return (
     <div>
-      <label className="label">
-        Your photo {required && <span className="text-red-600">*</span>}
-        <span className="ml-1 font-normal text-gray-400">आपकी फोटो</span>
-      </label>
-      <div className="mt-1 flex items-center gap-4">
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-dashed border-gray-300 bg-gray-50 transition hover:border-blue-400"
-        >
-          {value ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={value} alt="Profile" className="h-full w-full object-cover" />
-          ) : (
-            <span className="flex h-full w-full items-center justify-center text-2xl text-gray-300">
-              📷
-            </span>
+      {!hideLabel && (
+        <label className="label">
+          Your photo {required && <span className="text-red-600">*</span>}
+          <span className="ml-1 font-normal text-gray-400">आपकी फोटो</span>
+        </label>
+      )}
+      <div className={hideLabel ? "flex items-center gap-4" : "mt-1 flex items-center gap-4"}>
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="h-16 w-16 overflow-hidden rounded-full border-2 border-dashed border-gray-300 bg-gray-50 transition hover:border-blue-400"
+          >
+            {value ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={value} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center text-xl text-gray-300">
+                📷
+              </span>
+            )}
+          </button>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              aria-label="Remove photo"
+              className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
+            >
+              ×
+            </button>
           )}
-        </button>
+        </div>
         <div>
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="rounded-md border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+            className="rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
           >
-            {uploading ? "Uploading..." : value ? "Change photo" : "Upload photo"}
+            ⬆ {uploading ? "Uploading..." : value ? "Change Photo" : "Upload Photo"}
           </button>
           <p className="mt-1 text-xs text-gray-400">JPG, PNG or WEBP, up to 5MB</p>
           {error && <p className="mt-1 text-xs text-red-600">{error}</p>}

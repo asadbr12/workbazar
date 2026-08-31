@@ -19,6 +19,8 @@ export default async function EditRecruiterProfilePage() {
       initial={{
         fullName: profile.fullName,
         address: profile.officeAddress,
+        state: profile.state ?? "",
+        district: profile.district ?? "",
         pincode: profile.pincode,
         lat: profile.lat?.toString() ?? "",
         lng: profile.lng?.toString() ?? "",
