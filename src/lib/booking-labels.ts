@@ -8,6 +8,16 @@ export const STATUS_LABEL: Record<string, string> = {
   CANCELLED: "Cancelled",
 };
 
+export const RECRUITER_STATUS_LABEL: Record<string, string> = {
+  REQUESTED: "Waiting for worker",
+  ACCEPTED: "Accepted",
+  DECLINED: "Declined",
+  EN_ROUTE: "On the way",
+  ARRIVED: "Arrived",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+};
+
 export const STATUS_COLOR: Record<string, string> = {
   REQUESTED: "bg-amber-100 text-amber-700",
   ACCEPTED: "bg-blue-100 text-blue-700",

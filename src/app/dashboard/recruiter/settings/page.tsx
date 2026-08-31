@@ -12,20 +12,12 @@ export default async function RecruiterAccountSettingsPage() {
   const profile = user.recruiterProfile;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="animate-fade-in-up flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Account settings</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            खाता सेटिंग्स &middot; Manage your account and login.
-          </p>
-        </div>
-        <Link
-          href="/dashboard/recruiter"
-          className="text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700"
-        >
-          ← Back to dashboard
-        </Link>
+    <div className="max-w-3xl">
+      <div className="animate-fade-in-up">
+        <h1 className="text-xl font-bold text-gray-900">Account settings</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          खाता सेटिंग्स &middot; Manage your account and login.
+        </p>
       </div>
 
       <section

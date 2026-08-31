@@ -2,26 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { RECRUITER_STATUS_LABEL, STATUS_COLOR } from "@/lib/booking-labels";
 
-const STATUS_LABEL: Record<string, string> = {
-  REQUESTED: "Waiting for worker",
-  ACCEPTED: "Accepted",
-  DECLINED: "Declined",
-  EN_ROUTE: "On the way",
-  ARRIVED: "Arrived",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
-};
-
-const STATUS_COLOR: Record<string, string> = {
-  REQUESTED: "bg-amber-100 text-amber-700",
-  ACCEPTED: "bg-blue-100 text-blue-700",
-  EN_ROUTE: "bg-blue-100 text-blue-700",
-  ARRIVED: "bg-purple-100 text-purple-700",
-  COMPLETED: "bg-green-100 text-green-700",
-  DECLINED: "bg-gray-100 text-gray-500",
-  CANCELLED: "bg-gray-100 text-gray-500",
-};
+const POPULAR_SKILLS = ["Plumber", "Electrician", "Carpenter", "Painter", "Cleaner"];
 
 export default async function RecruiterDashboardPage() {
   const user = await getCurrentUser();
@@ -31,135 +14,246 @@ export default async function RecruiterDashboardPage() {
 
   const profile = user.recruiterProfile;
 
-  const bookings = await prisma.booking.findMany({
-    where: { recruiterId: user.id },
-    include: { worker: { select: { phone: true, workerProfile: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-  });
+  const [recentBookings, pendingCount, activeCount, completedCount] = await Promise.all([
+    prisma.booking.findMany({
+      where: { recruiterId: user.id },
+      include: { worker: { select: { phone: true, workerProfile: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+    prisma.booking.count({ where: { recruiterId: user.id, status: "REQUESTED" } }),
+    prisma.booking.count({
+      where: { recruiterId: user.id, status: { in: ["ACCEPTED", "EN_ROUTE", "ARRIVED"] } },
+    }),
+    prisma.booking.count({ where: { recruiterId: user.id, status: "COMPLETED" } }),
+  ]);
+
+  const location = [profile.officeAddress, profile.pincode].filter(Boolean).join(" · ");
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <div className="animate-fade-in-up flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Welcome, {profile.fullName.split(" ")[0]}
+    <div className="space-y-6">
+      {/* Welcome */}
+      <div className="animate-fade-in-up relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-100 p-5">
+        <div className="relative z-10 max-w-lg">
+          <h1 className="text-xl font-bold text-gray-900">
+            Welcome back, {profile.fullName.split(" ")[0]}! 👋
           </h1>
-          <p className="text-sm text-gray-500">
-            {profile.companyName || "Individual recruiter"} &middot;{" "}
-            {profile.officeAddress}
-            {profile.pincode ? ` · ${profile.pincode}` : ""}
-          </p>
+          <p className="mt-1 text-sm text-gray-500">Find skilled professionals for your work</p>
+          {location && (
+            <p className="mt-2 flex items-center gap-1 text-xs text-gray-500">
+              <span aria-hidden>📍</span> {location}
+            </p>
+          )}
+        </div>
+        <div className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 sm:block">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/70 text-2xl shadow-inner">
+            🧑‍💼
+          </div>
+          <span className="absolute -left-2 -top-1 flex h-6 w-6 items-center justify-center rounded-lg bg-white text-xs shadow">
+            🔎
+          </span>
+          <span className="absolute -right-2 bottom-0 flex h-6 w-6 items-center justify-center rounded-lg bg-white text-xs shadow">
+            🏗️
+          </span>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-6 sm:grid-cols-3">
-        <StatCard label="Active job posts" value="0" hint="Currently open requirements" delay={80} />
-        <StatCard label="Applications received" value="0" hint="Across all job posts" delay={150} />
-        <StatCard label="Shortlisted" value="0" hint="Workers shortlisted" delay={220} />
+      {/* Stat tiles */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard
+          icon="📋"
+          iconBg="bg-amber-50 text-amber-600"
+          label="Pending Requests"
+          value={String(pendingCount)}
+          hint="Waiting for worker"
+          hintColor="text-amber-600"
+          delay={80}
+        />
+        <StatCard
+          icon="💼"
+          iconBg="bg-blue-50 text-blue-600"
+          label="Active Bookings"
+          value={String(activeCount)}
+          hint="In progress"
+          hintColor="text-blue-600"
+          delay={150}
+        />
+        <StatCard
+          icon="✅"
+          iconBg="bg-green-50 text-green-600"
+          label="Completed Bookings"
+          value={String(completedCount)}
+          hint="Total completed"
+          hintColor="text-gray-400"
+          delay={220}
+        />
       </div>
 
-      <div className="mt-8 grid gap-6 sm:grid-cols-2">
-        <Card title="My bookings" delay={280}>
-          {bookings.length === 0 ? (
-            <EmptyState text="No bookings yet. Search a skill to find and book a worker." />
-          ) : (
-            <ul className="space-y-3">
-              {bookings.map((b) => (
-                <li key={b.id} className="rounded-lg border border-gray-200 p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {b.worker.workerProfile?.fullName ?? "Worker"} — {b.skill}
-                      </p>
-                      <p className="text-xs text-gray-500">+91 {b.worker.phone}</p>
+      {/* Main + sidebar */}
+      <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <div className="space-y-6">
+          <Card
+            title="My Bookings"
+            viewAllHref={recentBookings.length > 0 ? "/dashboard/recruiter/bookings" : undefined}
+            delay={280}
+          >
+            {recentBookings.length === 0 ? (
+              <EmptyState
+                icon="📅"
+                title="No bookings yet"
+                text="Search a skill to find and book a worker."
+              />
+            ) : (
+              <ul className="space-y-3">
+                {recentBookings.map((b) => (
+                  <li key={b.id} className="rounded-lg border border-gray-200 p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {b.worker.workerProfile?.fullName ?? "Worker"} — {b.skill}
+                        </p>
+                        <p className="text-xs text-gray-500">+91 {b.worker.phone}</p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_COLOR[b.status] ?? "bg-gray-100 text-gray-500"}`}
+                      >
+                        {RECRUITER_STATUS_LABEL[b.status] ?? b.status}
+                      </span>
                     </div>
-                    <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_COLOR[b.status] ?? "bg-gray-100 text-gray-500"}`}
+                    <Link
+                      href={`/bookings/${b.id}`}
+                      className="mt-2 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700"
                     >
-                      {STATUS_LABEL[b.status] ?? b.status}
-                    </span>
-                  </div>
-                  <Link
-                    href={`/bookings/${b.id}`}
-                    className="mt-2 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700"
-                  >
-                    Track →
-                  </Link>
-                </li>
+                      Track →
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+
+          <Card title="Find Workers Near You" delay={340}>
+            <p className="text-sm text-gray-500">
+              Search by skill to see the nearest available workers with phone number, fee, and
+              distance.
+            </p>
+            <form action="/search" method="get" className="mt-3 flex gap-2">
+              <input
+                name="q"
+                placeholder="Search for a skill (e.g. Plumber, Electrician)"
+                className="input"
+              />
+              <button
+                type="submit"
+                className="shrink-0 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+              >
+                Search
+              </button>
+            </form>
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              <span className="text-xs text-gray-400">Popular:</span>
+              {POPULAR_SKILLS.map((skill) => (
+                <Link
+                  key={skill}
+                  href={`/workers/${encodeURIComponent(skill)}`}
+                  className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 transition hover:bg-blue-100"
+                >
+                  {skill}
+                </Link>
               ))}
-            </ul>
-          )}
-        </Card>
-        <Card title="Find workers near you" delay={340}>
-          <p className="text-sm text-gray-500">
-            Search by skill to see the nearest available workers with phone
-            number, fee, and distance.
-          </p>
-          <Link
-            href="/search"
-            className="mt-3 inline-block text-sm font-semibold text-blue-600 hover:text-blue-700"
+            </div>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          <Card
+            title="Your Profile"
+            viewAllHref="/dashboard/recruiter/edit"
+            viewAllLabel="Edit Profile"
+            delay={400}
           >
-            Search workers ↗
-          </Link>
-          <Link
-            href="/#skills"
-            className="mt-1 block text-sm font-semibold text-blue-600 hover:text-blue-700"
-          >
-            Browse by category ↗
-          </Link>
-        </Card>
-        <Card title="Candidate management" delay={400}>
-          <EmptyState text="No candidates in your pipeline yet." />
-        </Card>
-        <Card title="Inbox" delay={460}>
-          <EmptyState text="No messages yet." />
-        </Card>
+            <dl className="space-y-2.5 text-sm">
+              <SummaryRow icon="🏢" label="Business Type" value={profile.businessType || "—"} />
+              <SummaryRow icon="🧾" label="GST Number" value={profile.gstNumber || "—"} />
+              <SummaryRow icon="💳" label="Payment Terms" value={profile.paymentTerms || "—"} />
+              <SummaryRow icon="💰" label="Budget Range" value={profile.budgetRange || "—"} />
+              <SummaryRow
+                icon="🛠️"
+                label="Worker Types Needed"
+                value={profile.workerTypesNeeded.join(", ") || "—"}
+              />
+              <SummaryRow icon="📍" label="Pincode" value={profile.pincode || "—"} />
+              <SummaryRow icon="📞" label="Phone" value={`+91 ${user.phone}`} />
+              <SummaryRow
+                icon="📅"
+                label="Member Since"
+                value={new Date(user.createdAt).toLocaleDateString("en-IN", {
+                  month: "short",
+                  year: "numeric",
+                })}
+              />
+            </dl>
+          </Card>
+
+          <Card title="Quick Actions" delay={460}>
+            <div className="grid grid-cols-1 gap-2">
+              <QuickAction href="/search" color="bg-blue-600" label="Search Workers" />
+              <QuickAction
+                href="/dashboard/recruiter/bookings"
+                color="bg-violet-600"
+                label="View My Bookings"
+              />
+              <QuickAction
+                href="/dashboard/recruiter/edit"
+                color="bg-green-600"
+                label="Edit Profile"
+              />
+            </div>
+          </Card>
+        </div>
       </div>
 
-      <div className="mt-8">
-        <Card title="Your profile" delay={520}>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
-            <Item label="Business type" value={profile.businessType || "—"} />
-            <Item label="GST number" value={profile.gstNumber || "—"} />
-            <Item label="Payment terms" value={profile.paymentTerms || "—"} />
-            <Item label="Budget range" value={profile.budgetRange || "—"} />
-            <Item label="Worker types needed" value={profile.workerTypesNeeded.join(", ") || "—"} />
-            <Item label="Pincode" value={profile.pincode || "—"} />
-            <Item label="Account phone" value={`+91 ${user.phone}`} />
-            <Item
-              label="Member since"
-              value={new Date(user.createdAt).toLocaleDateString("en-IN", {
-                month: "short",
-                year: "numeric",
-              })}
-            />
-          </dl>
-        </Card>
+      <div
+        className="animate-fade-in-up flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3 text-sm text-blue-800"
+        style={{ animationDelay: "520ms" }}
+      >
+        <span aria-hidden>🛡️</span> All workers on ALWorkBazar are verified — never share
+        payment details outside the platform.
       </div>
     </div>
   );
 }
 
 function StatCard({
+  icon,
+  iconBg,
   label,
   value,
   hint,
+  hintColor,
   delay = 0,
 }: {
+  icon: string;
+  iconBg: string;
   label: string;
   value: string;
   hint: string;
+  hintColor: string;
   delay?: number;
 }) {
   return (
     <div
-      className="card-hover animate-fade-in-up rounded-xl border border-gray-200 bg-white p-5"
+      className="card-hover animate-fade-in-up flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4"
       style={{ animationDelay: `${delay}ms` }}
     >
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="mt-1 text-3xl font-bold text-gray-900">{value}</p>
-      <p className="mt-1 text-xs text-gray-400">{hint}</p>
+      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-lg ${iconBg}`}>
+        {icon}
+      </span>
+      <div>
+        <p className="text-xs text-gray-500">{label}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <p className={`text-xs ${hintColor}`}>{hint}</p>
+      </div>
     </div>
   );
 }
@@ -168,31 +262,61 @@ function Card({
   title,
   children,
   delay = 0,
+  viewAllHref,
+  viewAllLabel = "View All",
 }: {
   title: string;
   children: React.ReactNode;
   delay?: number;
+  viewAllHref?: string;
+  viewAllLabel?: string;
 }) {
   return (
     <div
       className="card-hover animate-fade-in-up rounded-xl border border-gray-200 bg-white p-5"
       style={{ animationDelay: `${delay}ms` }}
     >
-      <h2 className="font-semibold text-gray-900">{title}</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-gray-900">{title}</h2>
+        {viewAllHref && (
+          <Link href={viewAllHref} className="text-xs font-semibold text-blue-600 hover:text-blue-700">
+            {viewAllLabel} →
+          </Link>
+        )}
+      </div>
       <div className="mt-3">{children}</div>
     </div>
   );
 }
 
-function EmptyState({ text }: { text: string }) {
-  return <p className="text-sm text-gray-400">{text}</p>;
+function EmptyState({ icon, title, text }: { icon: string; title: string; text: string }) {
+  return (
+    <div className="py-6 text-center">
+      <span className="text-3xl">{icon}</span>
+      <p className="mt-2 text-sm font-semibold text-gray-700">{title}</p>
+      <p className="mt-0.5 text-xs text-gray-400">{text}</p>
+    </div>
+  );
 }
 
-function Item({ label, value }: { label: string; value: string }) {
+function SummaryRow({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
-    <div>
-      <dt className="text-xs text-gray-400">{label}</dt>
-      <dd className="font-medium text-gray-800">{value}</dd>
+    <div className="flex items-center justify-between gap-2">
+      <span className="flex items-center gap-2 text-gray-500">
+        <span aria-hidden>{icon}</span> {label}
+      </span>
+      <span className="max-w-[55%] truncate text-right font-medium text-gray-800">{value}</span>
     </div>
+  );
+}
+
+function QuickAction({ href, color, label }: { href: string; color: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className={`rounded-lg px-3 py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90 ${color}`}
+    >
+      {label}
+    </Link>
   );
 }
